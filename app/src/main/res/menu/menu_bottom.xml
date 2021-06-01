@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/tab_category"
+        android:icon="@drawable/ic_chat_bubble"
+        android:title=""
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/tab_pkg"
+        android:icon="@drawable/ic_alarm"
+        android:title=""
+        app:showAsAction="ifRoom" />
+</menu>
