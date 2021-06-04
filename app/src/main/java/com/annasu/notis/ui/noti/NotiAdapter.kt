@@ -1,6 +1,8 @@
 package com.annasu.notis.ui.noti
 
 import android.view.ViewGroup
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableBoolean
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -12,13 +14,16 @@ import com.annasu.notis.data.room.entity.NotiInfo
  */
 class NotiAdapter(
     private val word: String,
-    private val lastNotiId: Long
+    private val lastNotiId: Long,
+    private val isEditMode: ObservableBoolean,
+    private val deletedList: ObservableArrayList<Long>,
+    private val listener: (Int, Long, Boolean) -> Unit
 ) : PagingDataAdapter<NotiInfo, RecyclerView.ViewHolder>(DiffUtilCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             NotiViewType.RIGHT -> NotiRightViewHolder.getInstance(parent)
-            else -> NotiViewHolder.getInstance(parent)
+            else -> NotiLeftViewHolder.getInstance(parent)
         }
     }
 
@@ -37,9 +42,16 @@ class NotiAdapter(
         }
         getItem(position)?.let {
             if (holder is NotiViewHolder) {
-                holder.bind(it, prevItem, nextItem, word, lastNotiId)
-            } else if (holder is NotiRightViewHolder) {
-                holder.bind(it, prevItem, nextItem, word, lastNotiId)
+                holder.bind(
+                    it,
+                    prevItem,
+                    nextItem,
+                    word,
+                    lastNotiId,
+                    isEditMode,
+                    deletedList,
+                    listener
+                )
             }
         }
     }

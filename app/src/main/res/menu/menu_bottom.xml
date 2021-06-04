@@ -3,14 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/tab_category"
-        android:icon="@drawable/ic_chat_bubble"
-        android:title=""
+        android:id="@+id/tab_message"
+        android:icon="@drawable/icon_tab_message_selector"
+        android:title="@string/tab_messages"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/tab_pkg"
-        android:icon="@drawable/ic_alarm"
-        android:title=""
+        android:icon="@drawable/icon_tab_notification_selector"
+        android:title="@string/tab_notifications"
         app:showAsAction="ifRoom" />
+
+    <!--    <item-->
+    <!--        android:id="@+id/tab_more"-->
+    <!--        android:icon="@drawable/icon_tab_more_selector"-->
+    <!--        android:title=""-->
+    <!--        app:showAsAction="ifRoom" />-->
 </menu>

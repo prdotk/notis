@@ -1,6 +1,5 @@
 package com.annasu.notis.ui.noti
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -9,14 +8,17 @@ import android.os.ResultReceiver
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.Observable
+import androidx.databinding.ObservableBoolean
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.annasu.notis.R
+import com.annasu.notis.constant.ClickMode
 import com.annasu.notis.constant.ServiceCommandType.CHECK_REPLY_POSSIBLE
 import com.annasu.notis.constant.ServiceCommandType.SEND_MESSAGE_TYPE
 import com.annasu.notis.databinding.NotiFragmentBinding
@@ -49,8 +51,10 @@ class NotiFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.noti_fragment, container, false)
         binding.lifecycleOwner = this
 
@@ -59,7 +63,21 @@ class NotiFragment : Fragment() {
         }
 
         lifecycleScope.launch {
-            adapter = NotiAdapter(viewModel.word, viewModel.getLastNotiId())
+            adapter = NotiAdapter(
+                viewModel.word, viewModel.getLastNotiId(),
+                viewModel.isMsgEditMode,
+                viewModel.removeList
+            ) { mode, notiId, isChecked ->
+                when (mode) {
+                    ClickMode.CHECK ->
+                        // 체크 버튼 클릭 시 액션
+                        if (isChecked)
+                            viewModel.removeList.add(notiId)
+                        else
+                            viewModel.removeList.remove(notiId)
+                    ClickMode.LONG -> viewModel.isMsgEditMode.set(true)
+                }
+            }
             binding.recycler.adapter = adapter
 
             viewModel.notiInfoList.collectLatest {
@@ -103,6 +121,16 @@ class NotiFragment : Fragment() {
             sendMessage(message)
         }
 
+        viewModel.isMsgEditMode.addOnPropertyChangedCallback(object :
+            Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                if (sender is ObservableBoolean) {
+                    val isEditMode = sender.get()
+                    binding.bottomLayout.isVisible = !isEditMode
+                }
+            }
+        })
+
         return binding.root
     }
 
@@ -110,14 +138,6 @@ class NotiFragment : Fragment() {
         super.onStop()
         lifecycleScope.launch {
             viewModel.readUpdateSummary()
-        }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun refresh() {
-        lifecycleScope.launch {
-            delay(50)
-            adapter.notifyDataSetChanged()
         }
     }
 
@@ -133,7 +153,10 @@ class NotiFragment : Fragment() {
     // 답장 보낼 수 있는지 확인한 결과
     private fun checkReplyPossibleResult(resultData: Bundle) {
         // 보내기 정보 사라졌을 경우 입력창 숨기거나 보여줌
-        binding.bottomLayout.isInvisible = !resultData.getBoolean("CHECK")
+        val checkPossible = resultData.getBoolean("CHECK")
+
+        binding.send.isVisible = checkPossible
+        binding.editText.isEnabled = checkPossible
         binding.editText.requestFocus()
     }
 

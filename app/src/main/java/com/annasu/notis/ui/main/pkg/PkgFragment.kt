@@ -25,10 +25,6 @@ class PkgFragment : Fragment() {
 
     private lateinit var binding: MainPkgFragmentBinding
 
-    companion object {
-        fun newInstance() = PkgFragment()
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.main_pkg_fragment, container, false)

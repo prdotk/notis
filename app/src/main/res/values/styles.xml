@@ -1,6 +1,29 @@
 <resources>
-    <style name="checkBoxStyle" parent="Base.Theme.AppCompat">
-        <item name="colorAccent">@color/purple_500</item>
-        <item name="android:textColorSecondary">#777777</item>
+    <style name="AppTheme" parent="BaseAppTheme">
+        <item name="appStatusBarColor">@color/white</item>
+
+        <item name="textColor">@color/black</item>
+        <item name="textColorDescription">@android:color/darker_gray</item>
+
+        <item name="iconColor">@color/black</item>
+        <item name="fabColor">#ccc</item>
+
+        <item name="bgEditText">#f9f9f9</item>
+        <item name="bubbleColor">#efefef</item>
+    </style>
+
+    <style name="TextBody" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textColor">?attr/textColor</item>
+    </style>
+
+    <style name="checkBoxStyle" parent="BaseAppTheme">
+    </style>
+
+    <style name="BottomNavigationThemeCustom" parent="BaseAppTheme">
+        <item name="enforceTextAppearance">true</item>
+        <item name="enforceMaterialTheme">true</item>
+        <item name="itemIconTint">@color/black</item>
+        <item name="itemTextAppearanceInactive">?attr/textAppearanceCaption</item>
+        <item name="itemTextAppearanceActive">?attr/textAppearanceCaption</item>
     </style>
 </resources>

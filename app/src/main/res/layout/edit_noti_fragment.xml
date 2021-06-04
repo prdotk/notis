@@ -18,7 +18,7 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:reverseLayout="true"
             app:stackFromEnd="false"
-            tools:listitem="@layout/layout_noti_item" />
+            tools:listitem="@layout/layout_noti_left_item" />
 
         <View
             android:id="@+id/line"

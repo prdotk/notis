@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Notis</string>
+
+    <string name="message_title">Messages</string>
+
+    <string name="search_in_message">Search in messages</string>
+
+    <string name="tab_messages">Messages</string>
+    <string name="tab_notifications">Notifications</string>
 </resources>

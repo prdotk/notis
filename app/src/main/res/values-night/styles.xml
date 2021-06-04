@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="BaseAppTheme">
+        <item name="appStatusBarColor">#111</item>
+
+        <item name="textColor">@color/white</item>
+        <item name="textColorDescription">@android:color/darker_gray</item>
+
+        <item name="iconColor">@color/white</item>
+        <item name="fabColor">#444</item>
+
+        <item name="bgEditText">#222</item>
+        <item name="bubbleColor">#444</item>
+    </style>
+
+    <style name="checkBoxStyle" parent="BaseAppTheme">
+        <item name="colorAccent">@color/white</item>
+    </style>
+
+    <style name="BottomNavigationThemeCustom" parent="BaseAppTheme">
+        <item name="enforceTextAppearance">true</item>
+        <item name="enforceMaterialTheme">true</item>
+        <item name="itemIconTint">@color/white</item>
+        <item name="backgroundTint">#191919</item>
+        <item name="itemRippleColor">@null</item>
+        <item name="itemTextAppearanceInactive">?attr/textAppearanceCaption</item>
+        <item name="itemTextAppearanceActive">?attr/textAppearanceCaption</item>
+        <!--        <item name="itemTextColor">@drawable/bottom_navigation_bar_icon_color</item>-->
+    </style>
+</resources>

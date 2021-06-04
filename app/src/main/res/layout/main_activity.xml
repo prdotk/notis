@@ -18,10 +18,14 @@
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavi"
+            style="@style/BottomNavigationThemeCustom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:labelVisibilityMode="unlabeled"
+            app:itemTextAppearanceActive="@style/BottomNavigationView"
+            app:itemTextAppearanceInactive="@style/BottomNavigationView"
+            app:itemTextColor="?textColor"
+            app:labelVisibilityMode="labeled"
             app:menu="@menu/menu_bottom" />
     </LinearLayout>
 </layout>

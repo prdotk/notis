@@ -19,7 +19,6 @@
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    android:background="@android:color/white"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
@@ -27,13 +26,14 @@
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_marginStart="8dp"
-                        android:background="?android:selectableItemBackground"
+                        android:background="?android:selectableItemBackgroundBorderless"
                         android:contentDescription="@null"
                         android:padding="10dp"
                         android:src="@drawable/ic_back"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="?iconColor" />
 
                     <ImageView
                         android:id="@+id/icon"
@@ -61,35 +61,54 @@
                         android:id="@+id/title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginEnd="50dp"
                         android:ellipsize="end"
                         android:includeFontPadding="false"
                         android:lines="1"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="10dp"
-                        android:textColor="@color/black"
+                        android:textColor="?attr/textColor"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         app:layout_constrainedWidth="true"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/menu"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0"
                         app:layout_constraintStart_toEndOf="@id/icon"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="타이틀" />
 
                     <ImageButton
-                        android:id="@+id/menu"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_marginEnd="8dp"
-                        android:background="?android:selectableItemBackground"
+                        android:id="@+id/search"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="?android:selectableItemBackgroundBorderless"
                         android:contentDescription="@null"
-                        android:padding="11dp"
+                        android:padding="6dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/ic_menu_vertical"
+                        android:src="@drawable/ic_search"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="?iconColor"
+                        tools:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/cancel"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:contentDescription="@null"
+                        android:padding="7dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_cancel"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="?iconColor"
+                        tools:visibility="visible" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
@@ -100,7 +119,20 @@
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
-            tools:context=".ui.main.MainActivity" />
+            app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="16dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_trash"
+            android:visibility="gone"
+            app:backgroundTint="@color/app"
+            app:fabSize="auto"
+            app:tint="@color/white"
+            tools:visibility="visible" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

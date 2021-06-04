@@ -6,12 +6,10 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.PopupMenu
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import com.annasu.notis.R
 import com.annasu.notis.databinding.SearchActivityBinding
-import com.annasu.notis.ui.edit.search.EditSearchActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,6 +32,9 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        this.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+
         binding = DataBindingUtil.setContentView(this, R.layout.search_activity)
 
         // 뒤로가기
@@ -60,33 +61,11 @@ class SearchActivity : AppCompatActivity() {
                 .replace(R.id.container, searchFragment)
                 .commitNow()
         }
+    }
 
-        // 상단 메뉴 컨텍스트
-        binding.menu.setOnClickListener { v ->
-            PopupMenu(this, v).run {
-                setOnMenuItemClickListener {
-                    when (it.itemId) {
-                        // 편집
-                        R.id.main_menu_edit -> {
-                            if (viewModel.word.isNotEmpty()) {
-                                val intent = Intent(this@SearchActivity, EditSearchActivity::class.java)
-                                intent.putExtra("WORD", viewModel.word)
-                                requestActivity.launch(intent)
-                                true
-                            } else {
-                                false
-                            }
-                        }
-                        // 설정
-                        R.id.main_menu_setting -> {
-                            true
-                        }
-                        else -> false
-                    }
-                }
-                menuInflater.inflate(R.menu.menu_main_context, menu)
-                show()
-            }
-        }
+    override fun finish() {
+        super.finish()
+
+        this.overridePendingTransition(R.anim.fade_in,R.anim.fade_out)
     }
 }

@@ -3,19 +3,19 @@ package com.annasu.notis.ui.noti
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.Observable
+import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.lifecycleScope
 import com.annasu.notis.R
 import com.annasu.notis.databinding.NotiActivityBinding
 import com.annasu.notis.extension.getAppIcon
 import com.annasu.notis.extension.loadBitmap
 import com.annasu.notis.extension.searchWordHighlight
-import com.annasu.notis.ui.edit.noti.EditNotiActivity
+import com.annasu.notis.ui.search.SearchActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,13 +29,6 @@ class NotiActivity : AppCompatActivity() {
 
     private val notiFragment: NotiFragment by lazy {
         NotiFragment()
-    }
-
-    // activity result
-    private val requestActivity: ActivityResultLauncher<Intent> = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        notiFragment.refresh()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,30 +73,59 @@ class NotiActivity : AppCompatActivity() {
                 .commitNow()
         }
 
-        // 상단 메뉴 컨텍스트
-        binding.menu.setOnClickListener { v ->
-            PopupMenu(this, v).run {
-                setOnMenuItemClickListener {
-                    when (it.itemId) {
-                        // 편집
-                        R.id.main_menu_edit -> {
-                            val intent = Intent(this@NotiActivity, EditNotiActivity::class.java)
-                            intent.putExtra("PKG_NAME", viewModel.pkgName)
-                            intent.putExtra("SUMMARY_TEXT", viewModel.summaryText)
-                            intent.putExtra("WORD", viewModel.word)
-                            requestActivity.launch(intent)
-                            true
-                        }
-                        // 설정
-                        R.id.main_menu_setting -> {
-                            true
-                        }
-                        else -> false
-                    }
-                }
-                menuInflater.inflate(R.menu.menu_main_context, menu)
-                show()
+        // 검색
+        binding.search.setOnClickListener {
+            val intent = Intent(this, SearchActivity::class.java)
+            startActivity(intent)
+        }
+
+        // 취소
+        binding.cancel.setOnClickListener {
+            lifecycleScope.launch {
+                finishEditMode()
             }
+        }
+
+        viewModel.isMsgEditMode.addOnPropertyChangedCallback(object :
+            Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                if (sender is ObservableBoolean) {
+                    val isEditMode = sender.get()
+                    binding.search.isVisible = !isEditMode
+                    binding.cancel.isVisible = isEditMode
+                    binding.fab.isVisible = isEditMode
+                }
+            }
+        })
+
+        binding.fab.setOnClickListener {
+            if (viewModel.isMsgEditMode.get()) {
+                lifecycleScope.launch {
+                    removeMessage()
+                }
+            } else {
+                // 모두 읽기 처리
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        if (viewModel.isMsgEditMode.get()) {
+            finishEditMode()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    private fun finishEditMode() {
+        viewModel.clearRemoveList()
+        viewModel.isMsgEditMode.set(false)
+    }
+
+    private fun removeMessage() {
+        lifecycleScope.launch {
+            viewModel.remove()
+            finishEditMode()
         }
     }
 }

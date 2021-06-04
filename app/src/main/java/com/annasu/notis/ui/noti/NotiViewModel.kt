@@ -1,5 +1,7 @@
 package com.annasu.notis.ui.noti
 
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -25,6 +27,9 @@ class NotiViewModel @Inject constructor(
     var summaryText: String = ""
     var word: String = ""
     var notiId: Long = -1
+
+    // 편집모드
+    var isMsgEditMode = ObservableBoolean(false)
 
     // 보낸 메시지 데이터를 작성하기 위한 최신 데이터
     var recentNoti: NotiInfo? = null
@@ -77,6 +82,28 @@ class NotiViewModel @Inject constructor(
     suspend fun readUpdateSummary() {
         return withContext(Dispatchers.IO) {
             repository.readUpdateSummary(pkgName, summaryText)
+        }
+    }
+
+    // 삭제 목록
+    val removeList = ObservableArrayList<Long>()
+
+    fun selectTotalNoti() {
+        viewModelScope.launch(Dispatchers.IO) {
+            removeList.clear()
+            repository.getNotiIdList(pkgName, summaryText).forEach { notiId ->
+                removeList.add(notiId)
+            }
+        }
+    }
+
+    fun clearRemoveList() {
+        removeList.clear()
+    }
+
+    suspend fun remove() {
+        withContext(Dispatchers.IO) {
+            repository.removeNotiInfoByIdList(removeList)
         }
     }
 }

@@ -7,7 +7,7 @@ import android.widget.CheckBox
 import androidx.databinding.ObservableList
 import androidx.recyclerview.widget.RecyclerView
 import com.annasu.notis.data.room.entity.NotiInfo
-import com.annasu.notis.databinding.LayoutNotiItemBinding
+import com.annasu.notis.databinding.LayoutNotiLeftItemBinding
 import com.annasu.notis.extension.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,18 +17,20 @@ import kotlinx.coroutines.launch
  * Created by datasaver on 2021/04/26.
  */
 class EditNotiViewHolder(
-    private val binding: LayoutNotiItemBinding
+    private val binding: LayoutNotiLeftItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(info: NotiInfo, listener: (Long, Boolean) -> Unit,
-             prevInfo: NotiInfo?, nextInfo: NotiInfo?, deletedList: ObservableList<Long>, word: String) {
+    fun bind(
+        info: NotiInfo, listener: (Long, Boolean) -> Unit,
+        prevInfo: NotiInfo?, nextInfo: NotiInfo?, deletedList: ObservableList<Long>, word: String
+    ) {
 
         notiId = info.notiId
 
         val isSamePrevMin = info.timestamp.checkSameMinute(prevInfo?.timestamp)
-            && info.title == prevInfo?.title && info.senderType == prevInfo.senderType
+                && info.title == prevInfo?.title && info.senderType == prevInfo.senderType
         val isSameNextMin = info.timestamp.checkSameMinute(nextInfo?.timestamp)
-            && info.title == nextInfo?.title && info.senderType == nextInfo.senderType
+                && info.title == nextInfo?.title && info.senderType == nextInfo.senderType
         val isDiffDay = info.timestamp.checkDiffDay(nextInfo?.timestamp)
 
         binding.run {
@@ -113,27 +115,45 @@ class EditNotiViewHolder(
                 updateChecked(sender)
             }
 
-            override fun onItemRangeChanged(sender: ObservableList<Long>?, positionStart: Int, itemCount: Int) {
+            override fun onItemRangeChanged(
+                sender: ObservableList<Long>?,
+                positionStart: Int,
+                itemCount: Int
+            ) {
                 updateChecked(sender)
             }
 
-            override fun onItemRangeInserted(sender: ObservableList<Long>?, positionStart: Int, itemCount: Int) {
+            override fun onItemRangeInserted(
+                sender: ObservableList<Long>?,
+                positionStart: Int,
+                itemCount: Int
+            ) {
                 updateChecked(sender)
             }
 
-            override fun onItemRangeMoved(sender: ObservableList<Long>?, fromPosition: Int, toPosition: Int, itemCount: Int) {
+            override fun onItemRangeMoved(
+                sender: ObservableList<Long>?,
+                fromPosition: Int,
+                toPosition: Int,
+                itemCount: Int
+            ) {
                 updateChecked(sender)
             }
 
-            override fun onItemRangeRemoved(sender: ObservableList<Long>?, positionStart: Int, itemCount: Int) {
+            override fun onItemRangeRemoved(
+                sender: ObservableList<Long>?,
+                positionStart: Int,
+                itemCount: Int
+            ) {
                 updateChecked(sender)
             }
         }
 
     companion object {
         fun getInstance(parent: ViewGroup): EditNotiViewHolder {
-            val binding = LayoutNotiItemBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false)
+            val binding = LayoutNotiLeftItemBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false
+            )
             return EditNotiViewHolder(binding)
         }
     }

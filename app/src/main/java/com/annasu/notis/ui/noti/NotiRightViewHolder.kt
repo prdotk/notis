@@ -4,7 +4,13 @@ import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.CheckBox
+import androidx.core.view.isVisible
+import androidx.databinding.Observable
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableBoolean
+import androidx.databinding.ObservableList
+import com.annasu.notis.constant.ClickMode
 import com.annasu.notis.data.room.entity.NotiInfo
 import com.annasu.notis.databinding.LayoutNotiRightItemBinding
 import com.annasu.notis.extension.*
@@ -14,17 +20,37 @@ import com.annasu.notis.extension.*
  */
 class NotiRightViewHolder(
     private val binding: LayoutNotiRightItemBinding
-) : RecyclerView.ViewHolder(binding.root) {
+) : NotiViewHolder(binding.root) {
 
-    fun bind(info: NotiInfo, prevInfo: NotiInfo?, nextInfo: NotiInfo?,
-             word: String, lastNotiId: Long) {
+    private val onEditModeChanged =
+        object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                if (sender is ObservableBoolean) {
+                    binding.check.isVisible = sender.get()
+                }
+            }
+        }
+
+    override fun bind(
+        info: NotiInfo,
+        prevInfo: NotiInfo?,
+        nextInfo: NotiInfo?,
+        word: String,
+        lastNotiId: Long,
+        isEditMode: ObservableBoolean,
+        deletedList: ObservableArrayList<Long>,
+        listener: (Int, Long, Boolean) -> Unit
+    ) {
+        notiId = info.notiId
+
         binding.run {
             val isSamePrevMin = info.timestamp.checkSameMinute(prevInfo?.timestamp)
-                && info.title == prevInfo?.title && info.senderType == prevInfo.senderType
+                    && info.title == prevInfo?.title && info.senderType == prevInfo.senderType
             val isDiffDay = info.timestamp.checkDiffDay(nextInfo?.timestamp)
 
             if ((nextInfo != null && isDiffDay) ||
-                (nextInfo == null && info.notiId == lastNotiId)) {
+                (nextInfo == null && info.notiId == lastNotiId)
+            ) {
                 date.visibility = View.VISIBLE
                 date.text = info.timestamp.toDate()
             } else {
@@ -43,13 +69,48 @@ class NotiRightViewHolder(
             text.text = info.text
             text.searchWordHighlight(word)
             Linkify.addLinks(text, Linkify.ALL)
+
+            // 체크 박스
+            check.isVisible = isEditMode.get()
+            updateChecked(deletedList)
+
+            check.setOnClickListener {
+                (it as? CheckBox)?.let { check ->
+                    info.isChecked = check.isChecked
+                    listener(ClickMode.LONG, info.notiId, check.isChecked)
+                }
+            }
+
+            layout.setOnClickListener {
+                check.performClick()
+            }
+
+            layout.setOnLongClickListener {
+                check.performClick()
+                listener(ClickMode.LONG, info.notiId, false)
+                true
+            }
+
+            deletedList.addOnListChangedCallback(onSelectedItemsChanged)
+
+            isEditMode.addOnPropertyChangedCallback(onEditModeChanged)
+        }
+    }
+
+    override fun updateChecked(list: ObservableList<Long>?) {
+        binding.run {
+            val isChecked = list?.find {
+                it == notiId
+            }
+            check.isChecked = isChecked != null
         }
     }
 
     companion object {
         fun getInstance(parent: ViewGroup): NotiRightViewHolder {
             val binding = LayoutNotiRightItemBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false)
+                LayoutInflater.from(parent.context), parent, false
+            )
             return NotiRightViewHolder(binding)
         }
     }

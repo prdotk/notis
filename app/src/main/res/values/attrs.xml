@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="appStatusBarColor" format="color"/>
+
+    <attr name="textColor" format="color" />
+    <attr name="textColorDescription" format="color" />
+
+    <attr name="iconColor" format="color" />
+    <attr name="fabColor" format="color" />
+
+    <attr name="bgEditText" format="color" />
+    <attr name="bubbleColor" format="color" />
+</resources>

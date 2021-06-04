@@ -6,6 +6,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
 /**
@@ -92,14 +93,16 @@ fun Long.checkSameMinute(compareTime: Long?): Boolean {
 fun Long.toDate(): String {
     val zoneId = ZoneId.systemDefault()
     val zonedDateTime = Instant.ofEpochMilli(this).atZone(zoneId)
-    return zonedDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy년 M월 d일 E요일"))
+    return zonedDateTime.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
+//    return zonedDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy년 M월 d일 E요일"))
 }
 
 // 시간 표시
 fun Long.toTime(): String {
     val zoneId = ZoneId.systemDefault()
     val zonedDateTime = Instant.ofEpochMilli(this).atZone(zoneId)
-    return zonedDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("a h:mm"))
+    return zonedDateTime.toLocalTime().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+//    return zonedDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("a h:mm"))
 }
 
 // 날짜 또는 시간 표시
@@ -111,13 +114,17 @@ fun Long.toDateOrTime(): String {
     return when {
         // 오늘일 경우 시간만 표시
         localDate.compareTo(today) == 0 ->
-            zonedDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("a h:mm"))
+            zonedDateTime.toLocalTime().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+//            zonedDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("a h:mm"))
         // 1일전은 어제로 표시
-        localDate.compareTo(today) == -1 -> "어제"
+//        localDate.compareTo(today) == -1 -> "어제"
         // 1일전 이상은 날짜로 표시
-        localDate.year == today.year -> localDate.format(DateTimeFormatter.ofPattern("M월 d일"))
+//        localDate.year == today.year ->
+//            localDate.format(DateTimeFormatter.ofPattern("M월 d일"))
         // 연도가 다를 경우 연도 표시
-        else -> localDate.format(DateTimeFormatter.ofPattern("yyyy.M.d"))
+        else ->
+            zonedDateTime.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+//            localDate.format(DateTimeFormatter.ofPattern("yyyy.M.d"))
     }
 }
 

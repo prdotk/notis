@@ -1,5 +1,6 @@
 package com.annasu.notis.ui.main
 
+import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import com.annasu.notis.repository.NotiRepository
@@ -16,4 +17,7 @@ class MainViewModel @Inject constructor(
 
     // 전체 안읽은 갯수
     val totalUnreadCount = repository.getTotalUnreadCount().asLiveData()
+
+    // 편집모드
+    var isMsgEditMode = ObservableBoolean(false)
 }

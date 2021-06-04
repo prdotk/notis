@@ -8,5 +8,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="badge">#ee0000</color>
+    <color name="badge">#d44000</color>
+
+    <color name="text_dark">#999</color>
+
+    <color name="app">#DC873D</color>
 </resources>
