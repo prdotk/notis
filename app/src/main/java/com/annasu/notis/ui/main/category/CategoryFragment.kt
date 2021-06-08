@@ -10,13 +10,11 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.annasu.notis.R
 import com.annasu.notis.databinding.MainCategoryFragmentBinding
-import com.annasu.notis.ui.edit.summary.EditSummaryActivity
-import com.annasu.notis.ui.edit.summary.EditSummaryActivity.Companion.MODE_EDIT_CATEGORY
 import com.annasu.notis.ui.search.SearchActivity
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -84,10 +82,10 @@ class CategoryFragment : Fragment() {
                     when (it.itemId) {
                         // 편집
                         R.id.main_menu_edit -> {
-                            val intent = Intent(context, EditSummaryActivity::class.java)
-                            intent.putExtra("MODE", MODE_EDIT_CATEGORY)
-                            intent.putExtra("CATEGORY", viewModel.categoryKeys[currentTabPosition])
-                            startActivity(intent)
+//                            val intent = Intent(context, EditSummaryActivity::class.java)
+//                            intent.putExtra("MODE", MODE_EDIT_CATEGORY)
+//                            intent.putExtra("CATEGORY", viewModel.categoryKeys[currentTabPosition])
+//                            startActivity(intent)
                             true
                         }
                         // 설정

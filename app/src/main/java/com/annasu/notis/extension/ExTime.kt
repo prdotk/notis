@@ -10,7 +10,7 @@ import java.time.format.FormatStyle
 import java.util.*
 
 /**
- * Created by datasaver on 2021/02/19.
+ * Created by annasu on 2021/02/19.
  */
 fun LocalDateTime.ms(): Long {
     return atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
@@ -121,6 +121,8 @@ fun Long.toDateOrTime(): String {
         // 1일전 이상은 날짜로 표시
 //        localDate.year == today.year ->
 //            localDate.format(DateTimeFormatter.ofPattern("M월 d일"))
+//            zonedDateTime.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+//                .replace(today.year.toString(), "")
         // 연도가 다를 경우 연도 표시
         else ->
             zonedDateTime.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))

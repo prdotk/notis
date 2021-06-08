@@ -33,7 +33,8 @@ class SearchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        this.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+        overridePendingTransition(0,0);
+//        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
 
         binding = DataBindingUtil.setContentView(this, R.layout.search_activity)
 
@@ -66,6 +67,7 @@ class SearchActivity : AppCompatActivity() {
     override fun finish() {
         super.finish()
 
-        this.overridePendingTransition(R.anim.fade_in,R.anim.fade_out)
+        overridePendingTransition(0,0);
+//        overridePendingTransition(R.anim.fade_in,R.anim.fade_out)
     }
 }

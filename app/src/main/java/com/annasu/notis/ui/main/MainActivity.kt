@@ -9,7 +9,7 @@ import com.annasu.notis.R
 import com.annasu.notis.databinding.MainActivityBinding
 import com.annasu.notis.extension.permissionNotification
 import com.annasu.notis.ui.main.message.MessageFragment
-import com.annasu.notis.ui.main.pkg.PkgFragment
+import com.annasu.notis.ui.main.notification.NotificationFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -19,10 +19,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: MainActivityBinding
 
-    private val messageFragment: MessageFragment by lazy { MessageFragment() }
-    private val pkgFragment: PkgFragment by lazy { PkgFragment() }
+    private lateinit var messageFragment: MessageFragment
+    private lateinit var notificationFragment: NotificationFragment
 
-    private var activeFragment: Fragment = pkgFragment
+    private lateinit var activeFragment: Fragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,43 +31,46 @@ class MainActivity : AppCompatActivity() {
         // 알림 허용 체크
         permissionNotification()
 
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().run {
-                add(R.id.container, messageFragment).show(messageFragment)
-                add(R.id.container, pkgFragment).hide(pkgFragment)
-            }.commit()
+        messageFragment = MessageFragment()
+        notificationFragment = NotificationFragment()
+        activeFragment = messageFragment
+
+        // 앱 재기동 시 이미 생성된 프래그먼트 제거
+        supportFragmentManager.fragments.forEach {
+            supportFragmentManager.beginTransaction().remove(it).commit()
         }
 
+        supportFragmentManager.beginTransaction().run {
+            add(R.id.container, messageFragment).show(messageFragment)
+            add(R.id.container, notificationFragment).hide(notificationFragment)
+        }.commit()
+
         binding.bottomNavi.setOnNavigationItemSelectedListener {
-            var ret = false
             when (it.itemId) {
                 R.id.tab_message -> {
                     supportFragmentManager.beginTransaction()
                         .hide(activeFragment)
                         .show(messageFragment).commit()
                     activeFragment = messageFragment
-                    ret = true
                 }
                 R.id.tab_pkg -> {
                     supportFragmentManager.beginTransaction()
                         .hide(activeFragment)
-                        .show(pkgFragment).commit()
-                    activeFragment = pkgFragment
-                    ret = true
+                        .show(notificationFragment).commit()
+                    activeFragment = notificationFragment
 
                     messageFragment.finishEditMode()
                 }
-//                R.id.tab_more -> {
-//                    supportFragmentManager.beginTransaction()
-//                        .hide(activeFragment)
-//                        .show(pkgFragment).commit()
-//                    activeFragment = pkgFragment
-//                    ret = true
-//
-//                    messageFragment.finishEditMode()
-//                }
+                R.id.tab_more -> {
+                    supportFragmentManager.beginTransaction()
+                        .hide(activeFragment)
+                        .show(notificationFragment).commit()
+                    activeFragment = notificationFragment
+
+                    messageFragment.finishEditMode()
+                }
             }
-            ret
+            true
         }
         binding.bottomNavi.selectedItemId = R.id.tab_message
 //        binding.bottomNavi.itemIconTintList = null

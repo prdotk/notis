@@ -12,7 +12,8 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="14dp"
             android:layout_marginVertical="8dp"
-            app:cardCornerRadius="10dp">
+            app:cardCornerRadius="10dp"
+            app:cardElevation="10dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/toolbar"
@@ -22,14 +23,13 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
-                    android:id="@+id/menu"
+                    android:id="@+id/search"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_marginStart="8dp"
-                    android:background="?android:selectableItemBackgroundBorderless"
                     android:contentDescription="@null"
                     android:padding="6dp"
-                    android:src="@drawable/ic_menu"
+                    android:src="@drawable/ic_search"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -37,33 +37,15 @@
 
                 <TextView
                     android:id="@+id/title"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:gravity="center_vertical"
                     android:text="@string/search_in_message"
                     android:textColor="@color/text_dark"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/menu"
-                    app:layout_constraintEnd_toStartOf="@id/cancel"
+                    app:layout_constraintStart_toEndOf="@id/search"
                     app:layout_constraintTop_toTopOf="parent" />
-
-<!--                <ImageButton-->
-<!--                    android:id="@+id/search"-->
-<!--                    android:layout_width="30dp"-->
-<!--                    android:layout_height="30dp"-->
-<!--                    android:layout_marginEnd="12dp"-->
-<!--                    android:background="?android:selectableItemBackgroundBorderless"-->
-<!--                    android:contentDescription="@null"-->
-<!--                    android:padding="6dp"-->
-<!--                    android:scaleType="fitCenter"-->
-<!--                    android:src="@drawable/ic_search"-->
-<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                    app:layout_constraintEnd_toEndOf="parent"-->
-<!--                    app:layout_constraintTop_toTopOf="parent"-->
-<!--                    app:tint="?iconColor"-->
-<!--                    tools:visibility="gone" />-->
 
                 <ImageButton
                     android:id="@+id/cancel"

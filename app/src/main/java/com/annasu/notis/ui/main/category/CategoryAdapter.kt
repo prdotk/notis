@@ -5,7 +5,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.annasu.notis.ui.main.category.view.CategoryPageFragment
 
 /**
- * Created by datasaver on 2021/04/26.
+ * Created by annasu on 2021/04/26.
  */
 class CategoryAdapter(
     fragment: Fragment,

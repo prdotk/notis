@@ -1,28 +1,26 @@
 package com.annasu.notis.ui.main.notification
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.addCallback
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableBoolean
+import androidx.databinding.ObservableInt
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.annasu.notis.R
 import com.annasu.notis.constant.ClickMode
-import com.annasu.notis.data.model.SimpleSummaryData
-import com.annasu.notis.databinding.MainMessageFragmentBinding
-import com.annasu.notis.extension.dp2Pixel
-import com.annasu.notis.ui.custom.LinearLayoutItemDecoration
+import com.annasu.notis.constant.NotiListMode
+import com.annasu.notis.databinding.MainNotificationFragmentBinding
 import com.annasu.notis.ui.main.MainViewModel
-import com.annasu.notis.ui.noti.NotiActivity
+import com.annasu.notis.ui.detail.MsgDetailActivity
 import com.annasu.notis.ui.search.SearchActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -34,65 +32,41 @@ class NotificationFragment : Fragment() {
     private val mainViewModel: MainViewModel by activityViewModels()
     private val viewModel: NotificationViewModel by viewModels()
 
-    private lateinit var binding: MainMessageFragmentBinding
+    private lateinit var binding: MainNotificationFragmentBinding
+
+    private val itemDecoration: DividerItemDecoration by lazy {
+        DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding =
-            DataBindingUtil.inflate(inflater, R.layout.main_message_fragment, container, false)
+            DataBindingUtil.inflate(inflater, R.layout.main_notification_fragment, container, false)
         binding.lifecycleOwner = this
 
-        val adapter = NotificationAdapter(
-            mainViewModel.isMsgEditMode,
-            viewModel.removeList
-        ) { mode, pkgName, summaryText, isChecked ->
-            when (mode) {
-                ClickMode.DEFAULT -> {
-                    val intent = Intent(context, NotiActivity::class.java)
-                    intent.putExtra("PKG_NAME", pkgName)
-                    intent.putExtra("SUMMARY_TEXT", summaryText)
-                    startActivity(intent)
-                }
-                ClickMode.CHECK ->
-                    // 체크 버튼 클릭 시 액션
-                    if (isChecked)
-                        viewModel.removeList.add(SimpleSummaryData(pkgName, summaryText))
-                    else
-                        viewModel.removeList.remove(SimpleSummaryData(pkgName, summaryText))
-                ClickMode.LONG -> mainViewModel.isMsgEditMode.set(true)
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.messageList.collectLatest {
-                adapter.submitData(lifecycle, it)
-            }
-        }
+        setupAllNotiList()
 
         // 검색
-        binding.title.setOnClickListener {
+        binding.toolbar.setOnClickListener {
             val intent = Intent(context, SearchActivity::class.java)
             startActivity(intent)
         }
 
-        // 취소
-        binding.cancel.setOnClickListener {
-            lifecycleScope.launch {
-                finishEditMode()
-            }
+        binding.listModeAll.setOnClickListener {
+            binding.listModeAll.visibility = View.GONE
+            binding.listModePkg.visibility = View.VISIBLE
+            viewModel.listMode.set(NotiListMode.PKG)
         }
 
-        binding.recycler.adapter = adapter
-        binding.recycler.addItemDecoration(
-            LinearLayoutItemDecoration(
-                requireContext().dp2Pixel(5f), requireContext().dp2Pixel(5f)
-            )
-        )
-        // 애니메이션 제거
-//        binding.recycler.itemAnimator = null
+        binding.listModePkg.setOnClickListener {
+            binding.listModeAll.visibility = View.VISIBLE
+            binding.listModePkg.visibility = View.GONE
+            viewModel.listMode.set(NotiListMode.ALL)
+        }
 
+        // 에디트 모드
         mainViewModel.isMsgEditMode.addOnPropertyChangedCallback(object :
             Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
@@ -106,38 +80,72 @@ class NotificationFragment : Fragment() {
             }
         })
 
-        binding.fabRead.setOnClickListener {
-        }
-
-        binding.fabDelete.setOnClickListener {
-            lifecycleScope.launch {
-                removeMessage()
+        // 리스트 모드
+        viewModel.listMode.addOnPropertyChangedCallback(object :
+            Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                if (sender is ObservableInt) {
+                    when (sender.get()) {
+                        NotiListMode.ALL -> setupAllNotiList()
+                        NotiListMode.PKG -> setupPkgNotiList()
+                    }
+                }
             }
+        })
+
+        binding.fabRead.setOnClickListener {
         }
 
         return binding.root
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        activity?.onBackPressedDispatcher?.addCallback {
-            if (mainViewModel.isMsgEditMode.get()) {
-                finishEditMode()
-            } else {
-                activity?.finish()
+    private fun setupAllNotiList() {
+        val adapter = NotificationAdapter { mode, pkgName, summaryText, isChecked ->
+            when (mode) {
+                ClickMode.DEFAULT -> {
+                    val intent = Intent(context, MsgDetailActivity::class.java)
+                    intent.putExtra("PKG_NAME", pkgName)
+                    intent.putExtra("SUMMARY_TEXT", summaryText)
+                    startActivity(intent)
+                }
             }
         }
-    }
 
-    fun finishEditMode() {
-        viewModel.clearRemoveList()
-        mainViewModel.isMsgEditMode.set(false)
-    }
-
-    private fun removeMessage() {
         lifecycleScope.launch {
-            viewModel.remove()
-            finishEditMode()
+            viewModel.allNotiList.collectLatest {
+                adapter.submitData(lifecycle, it)
+            }
         }
+
+        binding.recycler.adapter = adapter
+        binding.recycler.removeItemDecoration(itemDecoration)
+        binding.recycler.addItemDecoration(itemDecoration)
+        // 애니메이션 제거
+//        binding.recycler.itemAnimator = null
+    }
+
+    private fun setupPkgNotiList() {
+        val adapter = NotificationPkgAdapter { mode, pkgName, summaryText, isChecked ->
+            when (mode) {
+                ClickMode.DEFAULT -> {
+                    val intent = Intent(context, MsgDetailActivity::class.java)
+                    intent.putExtra("PKG_NAME", pkgName)
+                    intent.putExtra("SUMMARY_TEXT", summaryText)
+                    startActivity(intent)
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.pkgNotiList.collectLatest {
+                adapter.submitData(lifecycle, it)
+            }
+        }
+
+        binding.recycler.adapter = adapter
+        binding.recycler.removeItemDecoration(itemDecoration)
+        binding.recycler.addItemDecoration(itemDecoration)
+        // 애니메이션 제거
+//        binding.recycler.itemAnimator = null
     }
 }

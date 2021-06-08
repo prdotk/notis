@@ -1,6 +1,5 @@
 package com.annasu.notis.ui.summary
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -11,8 +10,6 @@ import com.annasu.notis.R
 import com.annasu.notis.databinding.SummaryActivityBinding
 import com.annasu.notis.extension.getAppIcon
 import com.annasu.notis.extension.getAppName
-import com.annasu.notis.ui.edit.summary.EditSummaryActivity
-import com.annasu.notis.ui.edit.summary.EditSummaryActivity.Companion.MODE_EDIT_PACKAGE
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -57,10 +54,10 @@ class SummaryActivity : AppCompatActivity() {
                     when (it.itemId) {
                         // 편집
                         R.id.main_menu_edit -> {
-                            val intent = Intent(this@SummaryActivity, EditSummaryActivity::class.java)
-                            intent.putExtra("MODE", MODE_EDIT_PACKAGE)
-                            intent.putExtra("PKG_NAME", viewModel.pkgName)
-                            startActivity(intent)
+//                            val intent = Intent(this@SummaryActivity, EditSummaryActivity::class.java)
+//                            intent.putExtra("MODE", MODE_EDIT_PACKAGE)
+//                            intent.putExtra("PKG_NAME", viewModel.pkgName)
+//                            startActivity(intent)
                             true
                         }
                         // 설정

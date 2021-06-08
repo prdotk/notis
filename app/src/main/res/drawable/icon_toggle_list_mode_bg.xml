@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/background"
+        android:drawable="@android:color/transparent" />
+    <item
+        android:id="@+id/toggle"
+        android:width="20dp"
+        android:height="20dp"
+        android:drawable="@drawable/icon_toggle_list_mode"
+        app:tint="@color/white" />
+</layer-list>

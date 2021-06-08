@@ -9,7 +9,7 @@ import com.annasu.notis.data.model.SimpleSummaryData
 import com.annasu.notis.data.room.entity.SummaryInfo
 
 /**
- * Created by datasaver on 2021/04/26.
+ * Created by annasu on 2021/04/26.
  */
 class MessageAdapter(
     private val isEditMode: ObservableBoolean,

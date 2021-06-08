@@ -7,7 +7,7 @@ import android.text.style.BackgroundColorSpan
 import android.widget.TextView
 
 /**
- * Created by datasaver on 2021/05/18.
+ * Created by annasu on 2021/05/18.
  */
 
 // 검색 단어 하이라이트

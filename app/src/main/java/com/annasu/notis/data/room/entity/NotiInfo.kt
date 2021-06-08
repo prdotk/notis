@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * Created by datasaver on 2021/04/26.
+ * Created by annasu on 2021/04/26.
  * https://developer.android.com/reference/android/app/Notification
  */
 @Entity(ignoredColumns = ["isChecked"])
@@ -18,9 +18,6 @@ data class NotiInfo(
 
     // 패키지 네임
     var pkgName: String = "",
-
-    // 패키지별 노티 ID
-    var pkgNotiId: Long = 0,
 
     // 저장 시간
     var timestamp: Long = -1,

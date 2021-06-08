@@ -29,16 +29,10 @@
         <activity android:name="com.annasu.notis.ui.summary.SummaryActivity" />
 
         <activity
-            android:name="com.annasu.notis.ui.noti.NotiActivity"
+            android:name="com.annasu.notis.ui.detail.MsgDetailActivity"
             android:windowSoftInputMode="stateHidden" />
 
         <activity android:name="com.annasu.notis.ui.search.SearchActivity" />
-
-        <activity android:name="com.annasu.notis.ui.edit.summary.EditSummaryActivity" />
-
-        <activity android:name="com.annasu.notis.ui.edit.noti.EditNotiActivity" />
-
-        <activity android:name="com.annasu.notis.ui.edit.search.EditSearchActivity" />
 
         <service
             android:name="com.annasu.notis.service.NotisNotificationListenerService"

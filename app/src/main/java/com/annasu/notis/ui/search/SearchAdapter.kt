@@ -8,7 +8,7 @@ import com.annasu.notis.constant.NotiViewType
 import com.annasu.notis.data.room.entity.NotiInfo
 
 /**
- * Created by datasaver on 2021/04/26.
+ * Created by annasu on 2021/04/26.
  */
 class SearchAdapter(
     private val listener: (String, String, Long) -> Unit
@@ -20,7 +20,7 @@ class SearchAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             NotiViewType.RIGHT -> SearchRightViewHolder.getInstance(parent)
-            else -> SearchViewHolder.getInstance(parent)
+            else -> SearchLeftViewHolder.getInstance(parent)
         }
     }
 
@@ -38,7 +38,7 @@ class SearchAdapter(
             nextItem = getItem(position + 1)
         }
         getItem(position)?.let {
-            if (holder is SearchViewHolder) {
+            if (holder is SearchLeftViewHolder) {
                 holder.bind(it, listener, prevItem, nextItem, word)
             } else if (holder is SearchRightViewHolder) {
                 holder.bind(it, listener, prevItem, nextItem, word)

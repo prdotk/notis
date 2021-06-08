@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 
 /**
- * Created by datasaver on 2021/02/05.
+ * Created by annasu on 2021/02/05.
  */
 interface BaseDao<T> {
 

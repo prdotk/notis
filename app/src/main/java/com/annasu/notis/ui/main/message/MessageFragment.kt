@@ -15,14 +15,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.annasu.notis.R
 import com.annasu.notis.constant.ClickMode
 import com.annasu.notis.data.model.SimpleSummaryData
 import com.annasu.notis.databinding.MainMessageFragmentBinding
-import com.annasu.notis.extension.dp2Pixel
-import com.annasu.notis.ui.custom.LinearLayoutItemDecoration
+import com.annasu.notis.ui.detail.MsgDetailActivity
 import com.annasu.notis.ui.main.MainViewModel
-import com.annasu.notis.ui.noti.NotiActivity
 import com.annasu.notis.ui.search.SearchActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -50,7 +49,7 @@ class MessageFragment : Fragment() {
         ) { mode, pkgName, summaryText, isChecked ->
             when (mode) {
                 ClickMode.DEFAULT -> {
-                    val intent = Intent(context, NotiActivity::class.java)
+                    val intent = Intent(context, MsgDetailActivity::class.java)
                     intent.putExtra("PKG_NAME", pkgName)
                     intent.putExtra("SUMMARY_TEXT", summaryText)
                     startActivity(intent)
@@ -72,7 +71,7 @@ class MessageFragment : Fragment() {
         }
 
         // 검색
-        binding.title.setOnClickListener {
+        binding.toolbar.setOnClickListener {
             val intent = Intent(context, SearchActivity::class.java)
             startActivity(intent)
         }
@@ -86,8 +85,9 @@ class MessageFragment : Fragment() {
 
         binding.recycler.adapter = adapter
         binding.recycler.addItemDecoration(
-            LinearLayoutItemDecoration(
-                requireContext().dp2Pixel(5f), requireContext().dp2Pixel(5f)
+            DividerItemDecoration(
+                context,
+                DividerItemDecoration.VERTICAL
             )
         )
         // 애니메이션 제거

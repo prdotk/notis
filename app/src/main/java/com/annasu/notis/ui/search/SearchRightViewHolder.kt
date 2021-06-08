@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Created by datasaver on 2021/04/26.
+ * Created by annasu on 2021/04/26.
  */
 class SearchRightViewHolder(
     private val binding: LayoutSearchRightItemBinding
@@ -39,12 +39,13 @@ class SearchRightViewHolder(
             }
 
             if (isSamePrevMin && !isDiffDay) {
-//            if (isSameNextMin && !isDiffDay) {
                 iconLayout.visibility = View.GONE
-                titleLayout.visibility = View.GONE
+                summary.visibility = View.GONE
+                title.visibility = View.GONE
             } else {
                 iconLayout.visibility = View.VISIBLE
-                titleLayout.visibility = View.VISIBLE
+                summary.visibility = View.VISIBLE
+                title.visibility = View.VISIBLE
 
                 // 앱 아이콘
                 CoroutineScope(Dispatchers.Main).launch {

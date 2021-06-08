@@ -8,7 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 /**
- * Created by datasaver on 2021/05/21.
+ * Created by annasu on 2021/05/21.
  */
 @HiltViewModel
 class MainViewModel @Inject constructor(

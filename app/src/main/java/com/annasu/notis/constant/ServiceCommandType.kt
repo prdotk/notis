@@ -1,7 +1,7 @@
 package com.annasu.notis.constant
 
 /**
- * Created by datasaver on 2021/05/13.
+ * Created by annasu on 2021/05/13.
  */
 object ServiceCommandType {
     const val SEND_MESSAGE_TYPE = 0

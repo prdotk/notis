@@ -8,7 +8,7 @@ import com.annasu.notis.data.room.entity.SummaryInfo
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Created by datasaver on 2021/04/27.
+ * Created by annasu on 2021/04/27.
  */
 @Dao
 interface SummaryInfoDao : BaseDao<SummaryInfo> {

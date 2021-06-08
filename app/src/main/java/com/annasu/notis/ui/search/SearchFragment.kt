@@ -16,7 +16,7 @@ import com.annasu.notis.R
 import com.annasu.notis.databinding.SearchFragmentBinding
 import com.annasu.notis.extension.dp2Pixel
 import com.annasu.notis.ui.custom.LinearLayoutItemDecoration
-import com.annasu.notis.ui.noti.NotiActivity
+import com.annasu.notis.ui.detail.MsgDetailActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -32,7 +32,7 @@ class SearchFragment : Fragment() {
 
     private val adapter: SearchAdapter by lazy {
         SearchAdapter { pkgName, summaryText, notiId ->
-            val intent = Intent(context, NotiActivity::class.java)
+            val intent = Intent(context, MsgDetailActivity::class.java)
             intent.putExtra("PKG_NAME", pkgName)
             intent.putExtra("SUMMARY_TEXT", summaryText)
             intent.putExtra("WORD", viewModel.word)
@@ -43,16 +43,22 @@ class SearchFragment : Fragment() {
 
     private var oldJob: Job? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.search_fragment, container, false)
         binding.lifecycleOwner = this
 
         binding.recycler.adapter = adapter
         // 애니메이션 제거
         binding.recycler.itemAnimator = null
-        binding.recycler.addItemDecoration(LinearLayoutItemDecoration(
-            0, requireContext().dp2Pixel(25f)))
+        binding.recycler.addItemDecoration(
+            LinearLayoutItemDecoration(
+                0,
+                requireContext().dp2Pixel(25f)
+            )
+        )
 //        (binding.recycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
 //        (binding.recycler.itemAnimator as SimpleItemAnimator).changeDuration = 0
 //        binding.recycler.itemAnimator = NoAnimationItemAnimator()

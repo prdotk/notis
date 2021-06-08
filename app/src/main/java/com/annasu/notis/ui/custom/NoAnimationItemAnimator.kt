@@ -4,7 +4,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 
 /**
- * Created by datasaver on 2021/05/14.
+ * Created by annasu on 2021/05/14.
  */
 class NoAnimationItemAnimator : SimpleItemAnimator() {
     override fun animateRemove(holder: RecyclerView.ViewHolder?): Boolean {

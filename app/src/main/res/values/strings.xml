@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Notis</string>
+    <string name="app_name">Noti Manager</string>
 
     <string name="message_title">Messages</string>
 
@@ -7,4 +7,7 @@
 
     <string name="tab_messages">Messages</string>
     <string name="tab_notifications">Notifications</string>
+    <string name="tab_more">more</string>
+
+    <string name="me">Me</string>
 </resources>

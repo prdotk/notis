@@ -1,21 +1,16 @@
 package com.annasu.notis.ui.main.notification
 
 import android.view.ViewGroup
-import androidx.databinding.ObservableArrayList
-import androidx.databinding.ObservableBoolean
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import com.annasu.notis.data.model.SimpleSummaryData
-import com.annasu.notis.data.room.entity.SummaryInfo
+import com.annasu.notis.data.room.entity.NotiInfo
 
 /**
- * Created by datasaver on 2021/04/26.
+ * Created by annasu on 2021/04/26.
  */
 class NotificationAdapter(
-    private val isEditMode: ObservableBoolean,
-    private val deletedList: ObservableArrayList<SimpleSummaryData>,
     private val listener: (Int, String, String, Boolean) -> Unit
-) : PagingDataAdapter<SummaryInfo, NotificationViewHolder>(DiffUtilCallback()) {
+) : PagingDataAdapter<NotiInfo, NotificationViewHolder>(DiffUtilCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
         return NotificationViewHolder.getInstance(parent)
@@ -23,16 +18,16 @@ class NotificationAdapter(
 
     override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
         getItem(position)?.let {
-            holder.bind(it, isEditMode, deletedList, listener)
+            holder.bind(it, listener)
         }
     }
 
-    class DiffUtilCallback : DiffUtil.ItemCallback<SummaryInfo>() {
-        override fun areItemsTheSame(oldItem: SummaryInfo, newItem: SummaryInfo): Boolean {
-            return oldItem.recentNotiInfo.summaryText == newItem.recentNotiInfo.summaryText
+    class DiffUtilCallback : DiffUtil.ItemCallback<NotiInfo>() {
+        override fun areItemsTheSame(oldItem: NotiInfo, newItem: NotiInfo): Boolean {
+            return oldItem.notiId == newItem.notiId
         }
 
-        override fun areContentsTheSame(oldItem: SummaryInfo, newItem: SummaryInfo): Boolean {
+        override fun areContentsTheSame(oldItem: NotiInfo, newItem: NotiInfo): Boolean {
             return oldItem == newItem
         }
     }

@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.annasu.notis.data.room.entity.SummaryInfo
 
 /**
- * Created by datasaver on 2021/04/26.
+ * Created by annasu on 2021/04/26.
  */
 class SummaryAdapter(
     private val listener: (String, String) -> Unit

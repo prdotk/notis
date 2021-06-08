@@ -1,0 +1,139 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?appToolbarColor"
+            app:liftOnScroll="false">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/back"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="8dp"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:contentDescription="@null"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_back"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="?iconColor" />
+
+                    <ImageView
+                        android:id="@+id/icon"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="@null"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/back"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:src="@drawable/ic_app_default" />
+
+                    <ImageView
+                        android:id="@+id/largeIcon"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:contentDescription="@null"
+                        app:layout_constraintBottom_toBottomOf="@id/icon"
+                        app:layout_constraintEnd_toEndOf="@id/icon"
+                        app:layout_constraintStart_toStartOf="@id/icon"
+                        app:layout_constraintTop_toTopOf="@id/icon"
+                        tools:src="@mipmap/ic_launcher" />
+
+                    <TextView
+                        android:id="@+id/title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginEnd="50dp"
+                        android:ellipsize="end"
+                        android:includeFontPadding="false"
+                        android:lines="1"
+                        android:textColor="?attr/textColor"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        app:layout_constrainedWidth="true"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="타이틀" />
+
+                    <ImageButton
+                        android:id="@+id/search"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:contentDescription="@null"
+                        android:padding="6dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_search"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="?iconColor"
+                        tools:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/cancel"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:contentDescription="@null"
+                        android:padding="7dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_cancel"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="?iconColor"
+                        tools:visibility="visible" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="16dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_trash"
+            android:visibility="gone"
+            app:backgroundTint="@color/app"
+            app:fabSize="auto"
+            app:tint="@color/white"
+            tools:visibility="visible" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

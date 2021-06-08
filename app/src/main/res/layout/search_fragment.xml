@@ -6,26 +6,19 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".ui.main.pkg.PkgFragment">
+        android:orientation="vertical">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:clipToPadding="false"
             android:paddingTop="65dp"
             android:scrollbars="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:reverseLayout="false"
-            tools:listitem="@layout/layout_search_item" />
-
-        <View
-            android:id="@+id/line"
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:background="#eee"
-            app:layout_constraintBottom_toTopOf="@id/bottomLayout" />
+            tools:listitem="@layout/layout_search_left_item" />
 
     </LinearLayout>
 </layout>

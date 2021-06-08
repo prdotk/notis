@@ -14,9 +14,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 /**
- * Created by datasaver on 2021/04/29.
+ * Created by annasu on 2021/04/29.
  */
-
 suspend fun String.loadBitmap(context: Context): Bitmap? {
     return try {
         withContext(Dispatchers.Default) {
@@ -32,45 +31,36 @@ suspend fun String.loadBitmap(context: Context): Bitmap? {
     }
 }
 
-fun BitmapDrawable.saveIcon(context: Context, name: String): String {
-    if (!bitmap.saveFile(context, name)) {
-        return ""
-    }
-    return name
-}
-
-/**
- * 저장된 파일이 있는지 체크
- */
-fun Bitmap.saveIcon(context: Context, name: String): String {
-//    val name = hashCode().toString()
-//    val storage = context.cacheDir
-//    val imageFile = File(storage, "$name")
-//    if (!imageFile.exists()) {
-    if (!saveFile(context, name)) {
-        return ""
-    }
-//    }
-    return name
+fun BitmapDrawable.saveFile(context: Context, name: String): String {
+    return bitmap.saveFile(context, name)
 }
 
 /**
  * 이미지 변환
  */
-fun Bitmap.saveFile(context: Context, name: String): Boolean {
-    val storage = context.cacheDir
-    val imgFile = File(storage, name)
-    var result = false
+fun Bitmap.saveFile(context: Context, name: String): String {
+    val storage = "${context.cacheDir}/$name"
+    val imgFile = File(storage, "temp")
+    var result = ""
     try {
+        File(storage).mkdirs()
         imgFile.createNewFile()
         val out = FileOutputStream(imgFile)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, out)
         } else {
-            compress(Bitmap.CompressFormat.PNG, 70, out)
+            compress(Bitmap.CompressFormat.WEBP, 100, out)
+//            compress(Bitmap.CompressFormat.PNG, 70, out)
         }
         out.close()
-        result = true
+
+        // 파일명을 파일 사이즈로 하고 체크
+        val fileSize = imgFile.length().toString()
+        val newFile = File(storage, fileSize).apply {
+            delete()
+        }
+        imgFile.renameTo(newFile)
+        result = "$name/$fileSize"
     } catch (e: FileNotFoundException) {
         Log.e("saveBitmapToJpg", "FileNotFoundException : " + e.message)
     } catch (e: IOException) {

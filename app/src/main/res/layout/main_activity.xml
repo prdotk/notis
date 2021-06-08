@@ -25,6 +25,7 @@
             app:itemTextAppearanceActive="@style/BottomNavigationView"
             app:itemTextAppearanceInactive="@style/BottomNavigationView"
             app:itemTextColor="?textColor"
+            app:elevation="20dp"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/menu_bottom" />
     </LinearLayout>

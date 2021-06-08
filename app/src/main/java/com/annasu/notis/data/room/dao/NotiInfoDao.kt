@@ -7,7 +7,7 @@ import com.annasu.notis.data.room.entity.NotiInfo
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Created by datasaver on 2021/04/26.
+ * Created by annasu on 2021/04/26.
  */
 @Dao
 interface NotiInfoDao : BaseDao<NotiInfo> {
@@ -15,9 +15,17 @@ interface NotiInfoDao : BaseDao<NotiInfo> {
     @Query("select * from NotiInfo")
     fun getAll(): PagingSource<Int, NotiInfo>
 
+    // 최신 노티 Flow
+    @Query("select * from NotiInfo where pkgName = :pkgName and summaryText = :summaryText order by timestamp desc limit 1")
+    fun getRecentNotiInfoByPkgNameAndSummaryTextFlow(pkgName: String, summaryText: String): Flow<NotiInfo?>
+
     // 최신 노티
     @Query("select * from NotiInfo where pkgName = :pkgName and summaryText = :summaryText order by timestamp desc limit 1")
-    fun getRecentNotiInfoByPkgNameAndSummaryText(pkgName: String, summaryText: String): Flow<NotiInfo?>
+    fun getRecentNotiInfoByPkgNameAndSummaryText(pkgName: String, summaryText: String): NotiInfo?
+
+    // 패키지 별 노티 갯수
+    @Query("select count(*) from NotiInfo where pkgName = :pkgName")
+    fun getPkgNotiCount(pkgName: String): Long
 
     // 중복 노티
     @Query("""select * from NotiInfo where 
@@ -25,9 +33,13 @@ interface NotiInfoDao : BaseDao<NotiInfo> {
         order by timestamp desc limit 1""")
     suspend fun getRecentNotiInfoByPkgNameAndSummaryTextAndText(pkgName: String, summaryText: String, text: String): NotiInfo?
 
-    // 노티 목록
+    // 노티 목록 (패키지 / 서머리 텍스트 별)
     @Query("select * from NotiInfo where pkgName = :pkgName and summaryText = :summaryText order by timestamp desc")
     fun getNotiInfoListByPkgNameAndSummaryText(pkgName: String, summaryText: String): PagingSource<Int, NotiInfo>
+
+    // 노티 목록 (메시지 제외 전체)
+    @Query("select * from NotiInfo where category != 'msg' order by timestamp desc")
+    fun getNotiInfoListByNotMsg(): PagingSource<Int, NotiInfo>
 
     // 노티 ID 목록
     @Query("select notiId from NotiInfo where pkgName = :pkgName and summaryText = :summaryText order by timestamp desc")

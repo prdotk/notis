@@ -5,7 +5,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
 /**
- * Created by datasaver on 2021/02/05.
+ * Created by annasu on 2021/02/05.
  */
 class LinearLayoutItemDecoration(
     private val topSpace: Int,
