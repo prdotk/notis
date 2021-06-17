@@ -40,21 +40,53 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:text="@string/search_in_message"
-                    android:textColor="@color/text_dark"
+                    android:text="@string/title_messages"
+                    android:textColor="?textColor"
                     android:textSize="16sp"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/search"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
-                    android:id="@+id/cancel"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginEnd="12dp"
+                    android:id="@+id/menu"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="5dp"
                     android:background="?android:selectableItemBackgroundBorderless"
                     android:contentDescription="@null"
-                    android:padding="7dp"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_menu_vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="?iconColor" />
+
+                <ImageButton
+                    android:id="@+id/delete"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?android:selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:padding="11dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_trash"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/cancel"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="?iconColor"
+                    tools:visibility="visible" />
+
+                <ImageButton
+                    android:id="@+id/cancel"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="5dp"
+                    android:background="?android:selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:padding="13dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_cancel"
                     android:visibility="gone"
@@ -77,30 +109,30 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/layout_category_item" />
 
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/fabRead"
-            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_margin="16dp"
-            android:contentDescription="@null"
-            android:text="Read All"
-            app:backgroundTint="@color/app"
-            app:icon="@drawable/ic_read"
-            app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
-            app:tint="@color/white" />
+        <!--        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
+        <!--            android:id="@+id/fabRead"-->
+        <!--            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_gravity="end|bottom"-->
+        <!--            android:layout_margin="16dp"-->
+        <!--            android:contentDescription="@null"-->
+        <!--            android:text="Read All"-->
+        <!--            app:backgroundTint="@color/app"-->
+        <!--            app:icon="@drawable/ic_read"-->
+        <!--            app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"-->
+        <!--            app:tint="@color/white" />-->
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabDelete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_margin="16dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_trash"
-            android:visibility="gone"
-            app:backgroundTint="@color/app"
-            app:tint="@color/white" />
+        <!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+        <!--            android:id="@+id/fabDelete"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_gravity="end|bottom"-->
+        <!--            android:layout_margin="16dp"-->
+        <!--            android:contentDescription="@null"-->
+        <!--            android:src="@drawable/ic_trash"-->
+        <!--            android:visibility="gone"-->
+        <!--            app:backgroundTint="@color/app"-->
+        <!--            app:tint="@color/white" />-->
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

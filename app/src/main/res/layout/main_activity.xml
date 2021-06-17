@@ -16,16 +16,30 @@
             app:layout_constraintTop_toBottomOf="@id/toolbar"
             tools:context=".ui.main.MainActivity" />
 
+        <!--        <com.google.android.gms.ads.AdView-->
+        <!--            android:id="@+id/ads"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:background="@android:color/transparent"-->
+        <!--            app:adSize="SMART_BANNER"-->
+        <!--            app:adUnitId="ca-app-pub-3940256099942544/6300978111"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintTop_toTopOf="parent" />-->
+
+        <FrameLayout
+            android:id="@+id/layoutAds"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavi"
             style="@style/BottomNavigationThemeCustom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:itemTextAppearanceActive="@style/BottomNavigationView"
-            app:itemTextAppearanceInactive="@style/BottomNavigationView"
+            app:itemTextAppearanceActive="@style/BottomNavigationView.Active"
+            app:itemTextAppearanceInactive="@style/BottomNavigationView.Inactive"
             app:itemTextColor="?textColor"
-            app:elevation="20dp"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/menu_bottom" />
     </LinearLayout>

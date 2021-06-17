@@ -1,0 +1,169 @@
+package com.inging.notis.ui.detail.msg
+
+import android.os.Bundle
+import android.view.View
+import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.Observable
+import androidx.databinding.ObservableBoolean
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
+import com.inging.notis.R
+import com.inging.notis.databinding.MsgDetailActivityBinding
+import com.inging.notis.extension.getAppIcon
+import com.inging.notis.extension.loadBitmap
+import com.inging.notis.extension.searchWordHighlight
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+@AndroidEntryPoint
+class MsgDetailActivity : AppCompatActivity() {
+
+    private val viewModel: MsgDetailViewModel by viewModels()
+
+    private lateinit var binding: MsgDetailActivityBinding
+
+    private lateinit var msgDetailFragment: MsgDetailFragment
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.msg_detail_activity)
+
+        msgDetailFragment = MsgDetailFragment()
+
+        // 앱 재기동 시 이미 생성된 프래그먼트 제거
+        supportFragmentManager.fragments.forEach {
+            supportFragmentManager.beginTransaction()
+                .remove(it).commit()
+        }
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.container, msgDetailFragment)
+            .commitNow()
+
+        viewModel.pkgName = intent?.getStringExtra("PKG_NAME") ?: ""
+        viewModel.summaryText = intent?.getStringExtra("SUMMARY_TEXT") ?: ""
+        viewModel.word = intent?.getStringExtra("WORD") ?: ""
+        viewModel.notiId = intent?.getLongExtra("NOTI_ID", -1) ?: -1
+
+        // 패키지 이름
+        binding.title.text = viewModel.summaryText
+        binding.title.searchWordHighlight(viewModel.word)
+
+        // 앱 아이콘
+        viewModel.recentNotiInfo.observe(this) {
+            it?.let { info ->
+                lifecycleScope.launch(Dispatchers.Main) {
+                    val bitmap = info.largeIcon.loadBitmap(this@MsgDetailActivity)
+                    if (bitmap != null) {
+                        binding.icon.visibility = View.INVISIBLE
+                        binding.largeIcon.visibility = View.VISIBLE
+                        binding.largeIcon.setImageBitmap(bitmap)
+                    } else {
+                        binding.icon.visibility = View.VISIBLE
+                        binding.largeIcon.visibility = View.GONE
+                        binding.icon.setImageDrawable(getAppIcon(info.pkgName))
+                    }
+                }
+            }
+        }
+
+        // 뒤로가기
+        binding.back.setOnClickListener {
+            finish()
+        }
+
+        // 취소
+        binding.cancel.setOnClickListener {
+            finishEditMode()
+        }
+
+        // 삭제 버튼
+        binding.delete.setOnClickListener {
+            deleteMessage()
+        }
+
+        viewModel.isEditMode.addOnPropertyChangedCallback(object :
+            Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                if (sender is ObservableBoolean) {
+                    val isEditMode = sender.get()
+                    binding.menu.isVisible = !isEditMode
+                    binding.cancel.isVisible = isEditMode
+                    binding.delete.isVisible = isEditMode
+                }
+            }
+        })
+
+        // 상단 메뉴 컨텍스트
+        binding.menu.setOnClickListener { v ->
+            PopupMenu(this, v).run {
+                setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        // 편집
+                        R.id.main_menu_edit -> {
+                            viewModel.isEditMode.set(true)
+                            true
+                        }
+                        // 모두 삭제
+                        R.id.main_menu_delete_all -> {
+                            deleteAll()
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                menuInflater.inflate(R.menu.menu_msg_detail_context, menu)
+                show()
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        if (viewModel.isEditMode.get()) {
+            finishEditMode()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    private fun finishEditMode() {
+        lifecycleScope.launch {
+            viewModel.clearDeleteList()
+            viewModel.isEditMode.set(false)
+        }
+    }
+
+    private fun deleteMessage() {
+        lifecycleScope.launch {
+            viewModel.delete()
+            finishEditMode()
+            Snackbar.make(
+                binding.root,
+                R.string.snack_selected_was_deleted,
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun deleteAll() {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.alert_delete_all)
+            .setPositiveButton(R.string.alert_positive) { _, _ ->
+                lifecycleScope.launch {
+                    viewModel.deleteAll()
+                    Snackbar.make(
+                        binding.root,
+                        R.string.snack_delete_all_done,
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }.setNegativeButton(R.string.alert_negative) { _, _ ->
+            }.create().show()
+    }
+}

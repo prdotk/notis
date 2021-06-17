@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.annasu.notis">
+    package="com.inging.notis">
 
+    <!-- 30 부터 다른 패키지 검색 제한, 검색할 패키지 queries에 작성해야 함 -->
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
+<!--    <queries>-->
+<!--        <package android:name="com.samsung.android.app.smartcapture" />-->
+<!--    </queries>-->
+
     <application
-        android:name="com.annasu.notis.NotisApplication"
+        android:name="com.inging.notis.NotisApplication"
         android:allowBackup="false"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -16,8 +21,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!-- google ads -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-7364144021153614~4843146185" />
+
         <activity
-            android:name="com.annasu.notis.ui.main.MainActivity"
+            android:name="com.inging.notis.ui.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,16 +37,20 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.annasu.notis.ui.summary.SummaryActivity" />
+        <activity android:name="com.inging.notis.ui.summary.SummaryActivity" />
 
         <activity
-            android:name="com.annasu.notis.ui.detail.MsgDetailActivity"
+            android:name="com.inging.notis.ui.detail.msg.MsgDetailActivity"
             android:windowSoftInputMode="stateHidden" />
 
-        <activity android:name="com.annasu.notis.ui.search.SearchActivity" />
+        <activity
+            android:name="com.inging.notis.ui.detail.pkgnoti.PkgNotiActivity"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity android:name="com.inging.notis.ui.search.SearchActivity" />
 
         <service
-            android:name="com.annasu.notis.service.NotisNotificationListenerService"
+            android:name="com.inging.notis.service.NotisNotificationListenerService"
             android:exported="false"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>

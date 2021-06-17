@@ -1,13 +1,32 @@
 <resources>
-    <string name="app_name">Noti Manager</string>
+    <string name="app_name">Notitool</string>
 
     <string name="message_title">Messages</string>
 
-    <string name="search_in_message">Search in messages</string>
+    <string name="title_messages">Messages</string>
+    <string name="title_noti_by_app">Notifications by App</string>
+    <string name="title_noti">Notifications</string>
+
+    <string name="search">Search</string>
 
     <string name="tab_messages">Messages</string>
     <string name="tab_notifications">Notifications</string>
     <string name="tab_more">more</string>
 
+    <string name="main_menu_edit">Edit</string>
+    <string name="main_menu_delete_all">Delete All</string>
+    <string name="main_menu_read_all">Read All</string>
+
     <string name="me">Me</string>
+
+    <string name="today">Today</string>
+
+    <string name="alert_positive">OK</string>
+    <string name="alert_negative">Cancel</string>
+    <string name="alert_delete_all">Delete all messages?\nCannot be recovered.</string>
+
+    <string name="snack_read_all_done">All messages have been read.</string>
+    <string name="snack_delete_all_done">All messages have been deleted.</string>
+
+    <string name="snack_selected_was_deleted">The selected items have been deleted.</string>
 </resources>

@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -10,7 +11,7 @@ android {
     buildToolsVersion '30.0.3'
 
     defaultConfig {
-        applicationId "com.annasu.notis"
+        applicationId "com.inging.notis"
         minSdk 23
         targetSdk 30
         versionCode 1
@@ -21,9 +22,9 @@ android {
     signingConfigs {
         release {
             storeFile file("annasu.jks")
-            storePassword "!jinu8086\$"
+            storePassword "!jinu8086"
             keyAlias "upload"
-            keyPassword "!jinu8086\$"
+            keyPassword "!jinu8086"
         }
     }
     buildTypes {
@@ -50,6 +51,10 @@ android {
 kapt {
     correctErrorTypes true
 }
+
+//configurations.all {
+//    resolutionStrategy.force "junit:junit:$junit_version"
+//}
 
 dependencies {
     // android 하위 버전에서 jdk 8 기능 사용하기 위해
@@ -93,7 +98,12 @@ dependencies {
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
     testImplementation "androidx.paging:paging-common-ktx:$paging_version"
 
+    // firebase
+    implementation platform("com.google.firebase:firebase-bom:28.1.0")
+    implementation "com.google.firebase:firebase-analytics-ktx"
+    implementation 'com.google.firebase:firebase-ads:20.2.0'
+
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation "androidx.test.ext:junit:$junit_version"
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }

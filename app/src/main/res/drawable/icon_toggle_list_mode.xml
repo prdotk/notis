@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:drawable="@drawable/ic_list_text" android:state_checked="false" app:tint="@color/white" />
-    <item android:drawable="@drawable/ic_list_pkg" android:state_checked="true" android:tint="@color/white" />
+    <item android:drawable="@drawable/ic_list_all" android:state_checked="false" app:tint="@color/white" />
+    <item android:drawable="@drawable/ic_list_app" android:state_checked="true" android:tint="@color/white" />
 </selector>
