@@ -72,11 +72,17 @@ interface NotiInfoDao : BaseDao<NotiInfo> {
     @Query("select * from NotiInfo where category != 'msg' order by timestamp desc")
     fun getNotiInfoListByNotMsg(): PagingSource<Int, NotiInfo>
 
-    // 노티 ID 목록
+    // 노티 ID 목록 (패키지, 서머리)
     @Query("select notiId from NotiInfo where pkgName = :pkgName and summaryText = :summaryText order by timestamp desc")
     suspend fun getNotiIdListByPkgNameAndSummaryText(
         pkgName: String,
         summaryText: String
+    ): List<Long>
+
+    // 노티 ID 목록 (패키지)
+    @Query("select notiId from NotiInfo where pkgName = :pkgName order by timestamp desc")
+    suspend fun getNotiIdListByPkgName(
+        pkgName: String
     ): List<Long>
 
     // 오래된 마지막 노티
@@ -127,6 +133,9 @@ interface NotiInfoDao : BaseDao<NotiInfo> {
 
     @Query("delete from NotiInfo where notiId in (:idList)")
     suspend fun deleteNotiInfoByIdList(idList: List<Long>)
+
+    @Query("delete from NotiInfo where notiId in (:idList)")
+    suspend fun deleteNotiInfoById(idList: Long)
 
     // 메시지 노티 전부 삭제
     @Query("delete from NotiInfo where category == 'msg'")

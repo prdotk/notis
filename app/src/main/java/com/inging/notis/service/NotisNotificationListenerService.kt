@@ -145,19 +145,56 @@ class NotisNotificationListenerService : NotificationListenerService() {
                 }
 //                    notiInfo.icon = bundle.getInt("android.icon")
 
-                val largeIcon = bundle.getParcelable<Parcelable>("android.largeIcon")
+                // EXTRA_LARGE_ICON
+                val largeIcon = bundle.getParcelable<Parcelable>(EXTRA_LARGE_ICON)
                 if (largeIcon is Bitmap) {
                     notiInfo.largeIcon = largeIcon
                         .saveFile(
                             this@NotisNotificationListenerService,
-                            "${notiInfo.pkgName}_${notiInfo.title}"
+                            "${EXTRA_LARGE_ICON}/${notiInfo.pkgName}/${notiInfo.title}"
                         )
                 } else if (largeIcon is Icon) {
                     notiInfo.largeIcon =
                         (largeIcon.loadDrawable(this@NotisNotificationListenerService) as? BitmapDrawable)
                             ?.saveFile(
                                 this@NotisNotificationListenerService,
-                                "${notiInfo.pkgName}_${notiInfo.title}"
+                                "${EXTRA_LARGE_ICON}/${notiInfo.pkgName}/${notiInfo.title}"
+                            )
+                            ?: ""
+                }
+
+                // EXTRA_PICTURE
+                val picture = bundle.getParcelable<Parcelable>(EXTRA_PICTURE)
+                if (picture is Bitmap) {
+                    notiInfo.picture = picture
+                        .saveFile(
+                            this@NotisNotificationListenerService,
+                            "${EXTRA_PICTURE}/${notiInfo.pkgName}/${notiInfo.title}"
+                        )
+                } else if (picture is Icon) {
+                    notiInfo.picture =
+                        (picture.loadDrawable(this@NotisNotificationListenerService) as? BitmapDrawable)
+                            ?.saveFile(
+                                this@NotisNotificationListenerService,
+                                "${EXTRA_PICTURE}/${notiInfo.pkgName}/${notiInfo.title}"
+                            )
+                            ?: ""
+                }
+
+                // EXTRA_BACKGROUND_IMAGE_URI
+                val bgImage = bundle.getParcelable<Parcelable>(EXTRA_BACKGROUND_IMAGE_URI)
+                if (bgImage is Bitmap) {
+                    notiInfo.bgImage = bgImage
+                        .saveFile(
+                            this@NotisNotificationListenerService,
+                            "${EXTRA_BACKGROUND_IMAGE_URI}/${notiInfo.pkgName}/${notiInfo.title}"
+                        )
+                } else if (bgImage is Icon) {
+                    notiInfo.bgImage =
+                        (bgImage.loadDrawable(this@NotisNotificationListenerService) as? BitmapDrawable)
+                            ?.saveFile(
+                                this@NotisNotificationListenerService,
+                                "${EXTRA_BACKGROUND_IMAGE_URI}/${notiInfo.pkgName}/${notiInfo.title}"
                             )
                             ?: ""
                 }

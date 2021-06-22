@@ -17,7 +17,7 @@ class MsgDetailAdapter(
     private val lastNotiId: Long,
     private val isEditMode: ObservableBoolean,
     private val deletedList: ObservableArrayList<Long>,
-    private val listener: (Int, Long, Boolean) -> Unit
+    private val listener: (Int, NotiInfo, Boolean) -> Unit
 ) : PagingDataAdapter<NotiInfo, RecyclerView.ViewHolder>(DiffUtilCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

@@ -101,6 +101,12 @@ class MsgDetailViewModel @Inject constructor(
         deleteList.clear()
     }
 
+    suspend fun delete(notiId: Long) {
+        withContext(Dispatchers.IO) {
+            repository.deleteMsgNotiListAndUpdateSummary(notiId, pkgName, summaryText)
+        }
+    }
+
     suspend fun delete() {
         withContext(Dispatchers.IO) {
             repository.deleteMsgNotiListAndUpdateSummary(deleteList, pkgName, summaryText)

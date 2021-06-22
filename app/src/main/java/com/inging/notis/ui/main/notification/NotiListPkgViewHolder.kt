@@ -16,7 +16,7 @@ import com.inging.notis.databinding.LayoutNotificationPkgItemBinding
 import com.inging.notis.extension.getAppIcon
 import com.inging.notis.extension.getAppName
 import com.inging.notis.extension.loadBitmap
-import com.inging.notis.extension.toDateOrTime
+import com.inging.notis.extension.toDateTimeOrTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -66,9 +66,10 @@ class NotiListPkgViewHolder(
             }
 
             // 마지막 알림 시간
-            timestamp.text = info.recentNotiInfo.timestamp.toDateOrTime()
+            timestamp.text = info.recentNotiInfo.timestamp.toDateTimeOrTime()
 
             // 노티 내용
+            text.isVisible = info.recentNotiInfo.text.isNotEmpty()
             text.text = info.recentNotiInfo.text
 
             // 체크 박스

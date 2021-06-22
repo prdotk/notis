@@ -40,10 +40,16 @@ data class NotiInfo(
     // 아이콘, 현재 사용 안함
     var icon: Int = 0,
 
-    // 로컬 이미지 파일 경로, 캐시에 jpg 파일로 저장됨
+    // 라지 아이콘 파일 경로, 캐시에 파일로 저장됨
     var largeIcon: String = "",
 
-    // 0: 받은 메시지, 1: 보낸 메시지
+    // 픽쳐 파일 경로, 캐시에 파일로 저장됨
+    var picture: String = "",
+
+    // 백그라운드 이미지 파일 경로, 캐시에 파일로 저장됨
+    var bgImage: String = "",
+
+    // 0: 받은 메시지, 1: 보낸 메시지, 90: 헤더
     val senderType: Int,
 
     // 안읽은 노티 구분, 메시지 아닌 노티만 사용

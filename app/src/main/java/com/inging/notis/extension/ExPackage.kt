@@ -1,11 +1,8 @@
 package com.inging.notis.extension
 
 import android.content.Context
-import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.inging.notis.R
@@ -57,21 +54,4 @@ fun Context.getAppName(packageName: String): String {
     } catch (e: NullPointerException) {
         packageName
     }
-}
-
-//특정 패키지명의 앱 실행(설치여부 확인후 실행필요)
-fun Context.executeLocalAppPackage(packageName: String) {
-   packageManager.getLaunchIntentForPackage(packageName)?.let {
-       it.addFlags(FLAG_ACTIVITY_NEW_TASK)
-//       it.action = Intent.ACTION_MAIN
-       startActivity(it)
-   }
-}
-
-//특정 패키지명의 앱의 설치경로(PlayStore) 이동처리
-fun Context.executeStoreAppPackage(packageName: String) {
-    val url = "market://details?id=$packageName"
-    val i = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-    i.addFlags(FLAG_ACTIVITY_NEW_TASK)
-    startActivity(i)
 }

@@ -6,7 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.isVisible
+import androidx.core.view.isInvisible
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableBoolean
@@ -34,6 +34,11 @@ class MsgDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.msg_detail_activity)
 
+        viewModel.pkgName = intent?.getStringExtra("PKG_NAME") ?: ""
+        viewModel.summaryText = intent?.getStringExtra("SUMMARY_TEXT") ?: ""
+        viewModel.word = intent?.getStringExtra("WORD") ?: ""
+        viewModel.notiId = intent?.getLongExtra("NOTI_ID", -1) ?: -1
+
         msgDetailFragment = MsgDetailFragment()
 
         // 앱 재기동 시 이미 생성된 프래그먼트 제거
@@ -46,12 +51,7 @@ class MsgDetailActivity : AppCompatActivity() {
             .replace(R.id.container, msgDetailFragment)
             .commitNow()
 
-        viewModel.pkgName = intent?.getStringExtra("PKG_NAME") ?: ""
-        viewModel.summaryText = intent?.getStringExtra("SUMMARY_TEXT") ?: ""
-        viewModel.word = intent?.getStringExtra("WORD") ?: ""
-        viewModel.notiId = intent?.getLongExtra("NOTI_ID", -1) ?: -1
-
-        // 패키지 이름
+        // 타이틀
         binding.title.text = viewModel.summaryText
         binding.title.searchWordHighlight(viewModel.word)
 
@@ -93,9 +93,9 @@ class MsgDetailActivity : AppCompatActivity() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 if (sender is ObservableBoolean) {
                     val isEditMode = sender.get()
-                    binding.menu.isVisible = !isEditMode
-                    binding.cancel.isVisible = isEditMode
-                    binding.delete.isVisible = isEditMode
+                    binding.menu.isInvisible = isEditMode
+                    binding.cancel.isInvisible = !isEditMode
+                    binding.delete.isInvisible = !isEditMode
                 }
             }
         })

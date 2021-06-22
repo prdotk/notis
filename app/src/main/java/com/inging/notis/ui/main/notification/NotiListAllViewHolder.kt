@@ -16,7 +16,7 @@ import com.inging.notis.databinding.LayoutNotificationItemBinding
 import com.inging.notis.extension.getAppIcon
 import com.inging.notis.extension.getAppName
 import com.inging.notis.extension.loadBitmap
-import com.inging.notis.extension.toDateOrTime
+import com.inging.notis.extension.toDateTimeOrTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,12 +44,31 @@ class NotiListAllViewHolder(
                 appIcon.setImageDrawable(root.context.getAppIcon(info.pkgName))
 
                 // 썸네일
-                val bitmap = info.largeIcon.loadBitmap(root.context)
-                if (bitmap != null) {
-                    thumbnail.visibility = View.VISIBLE
-                    thumbnail.setImageBitmap(bitmap)
-                } else {
-                    thumbnail.visibility = View.GONE
+                thumbnail.visibility = View.GONE
+                if (info.largeIcon.isNotEmpty()) {
+                    val bitmap = info.largeIcon.loadBitmap(root.context)
+                    if (bitmap != null) {
+                        thumbnail.visibility = View.VISIBLE
+                        thumbnail.setImageBitmap(bitmap)
+                    }
+                }
+
+                picture.visibility = View.GONE
+                if (info.picture.isNotEmpty()) {
+                    val bitmap = info.picture.loadBitmap(root.context)
+                    if (bitmap != null) {
+                        picture.visibility = View.VISIBLE
+                        picture.setImageBitmap(bitmap)
+                    }
+                }
+
+                bgImage.visibility = View.GONE
+                if (info.bgImage.isNotEmpty()) {
+                    val bitmap = info.bgImage.loadBitmap(root.context)
+                    if (bitmap != null) {
+                        bgImage.visibility = View.VISIBLE
+                        bgImage.setImageBitmap(bitmap)
+                    }
                 }
             }
 
@@ -68,9 +87,10 @@ class NotiListAllViewHolder(
             }
 
             // 마지막 알림 시간
-            timestamp.text = info.timestamp.toDateOrTime()
+            timestamp.text = info.timestamp.toDateTimeOrTime()
 
             // 노티 내용
+            text.isVisible = info.text.isNotEmpty()
             text.text = info.text
 
             // New 마크

@@ -31,15 +31,15 @@ suspend fun String.loadBitmap(context: Context): Bitmap? {
     }
 }
 
-fun BitmapDrawable.saveFile(context: Context, name: String): String {
-    return bitmap.saveFile(context, name)
+fun BitmapDrawable.saveFile(context: Context, dir: String): String {
+    return bitmap.saveFile(context, dir)
 }
 
 /**
  * 이미지 변환
  */
-fun Bitmap.saveFile(context: Context, name: String): String {
-    val storage = "${context.cacheDir}/$name"
+fun Bitmap.saveFile(context: Context, dir: String): String {
+    val storage = "${context.cacheDir}/$dir"
     val imgFile = File(storage, "temp")
     var result = ""
     try {
@@ -47,9 +47,9 @@ fun Bitmap.saveFile(context: Context, name: String): String {
         imgFile.createNewFile()
         val out = FileOutputStream(imgFile)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, out)
+            compress(Bitmap.CompressFormat.WEBP_LOSSY, 75, out)
         } else {
-            compress(Bitmap.CompressFormat.WEBP, 100, out)
+            compress(Bitmap.CompressFormat.WEBP, 75, out)
 //            compress(Bitmap.CompressFormat.PNG, 70, out)
         }
         out.close()
@@ -60,12 +60,12 @@ fun Bitmap.saveFile(context: Context, name: String): String {
             delete()
         }
         imgFile.renameTo(newFile)
-        result = "$name/$fileSize"
+        result = "$dir/$fileSize"
     } catch (e: FileNotFoundException) {
         Log.e("saveBitmapToJpg", "FileNotFoundException : " + e.message)
     } catch (e: IOException) {
         Log.e("saveBitmapToJpg", "IOException : " + e.message)
     }
-    Log.d("imgPath", context.cacheDir.absolutePath + "/" + name)
+    Log.d("imgPath", context.cacheDir.absolutePath + "/" + dir)
     return result
 }

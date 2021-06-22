@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
@@ -19,6 +20,7 @@ import com.inging.notis.R
 import com.inging.notis.constant.ClickMode
 import com.inging.notis.data.model.SimpleSummaryData
 import com.inging.notis.databinding.MainMessageFragmentBinding
+import com.inging.notis.extension.showBottomSheetDialog
 import com.inging.notis.ui.detail.msg.MsgDetailActivity
 import com.inging.notis.ui.main.MainFragment
 import com.inging.notis.ui.search.SearchActivity
@@ -44,18 +46,38 @@ class MsgListFragment : MainFragment() {
         val adapter = MsgListAdapter(
             viewModel.isEditMode,
             viewModel.deleteList
-        ) { mode, pkgName, summaryText, isChecked ->
+        ) { mode, info, isChecked ->
             when (mode) {
                 ClickMode.DEFAULT -> {
                     val intent = Intent(context, MsgDetailActivity::class.java)
-                    intent.putExtra("PKG_NAME", pkgName)
-                    intent.putExtra("SUMMARY_TEXT", summaryText)
+                    intent.putExtra("PKG_NAME", info.pkgName)
+                    intent.putExtra("SUMMARY_TEXT", info.summaryText)
                     startActivity(intent)
                 }
                 ClickMode.CHECK -> // 체크 버튼 클릭 시 액션
-                    if (isChecked) viewModel.deleteList.add(SimpleSummaryData(pkgName, summaryText))
-                    else viewModel.deleteList.remove(SimpleSummaryData(pkgName, summaryText))
-                ClickMode.LONG -> viewModel.isEditMode.set(true)
+                    if (isChecked) viewModel.deleteList.add(
+                        SimpleSummaryData(
+                            info.pkgName,
+                            info.summaryText
+                        )
+                    )
+                    else viewModel.deleteList.remove(
+                        SimpleSummaryData(
+                            info.pkgName,
+                            info.summaryText
+                        )
+                    )
+                ClickMode.LONG -> //viewModel.isEditMode.set(true)
+                    requireContext().showBottomSheetDialog(info) {
+                        lifecycleScope.launch {
+                            viewModel.delete(info)
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.snack_has_been_deleted,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
             }
         }
 

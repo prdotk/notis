@@ -56,7 +56,7 @@ open class MsgDetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVie
         word: String, lastNotiId: Long,
         isEditMode: ObservableBoolean,
         deletedList: ObservableArrayList<Long>,
-        listener: (Int, Long, Boolean) -> Unit
+        listener: (Int, NotiInfo, Boolean) -> Unit
     ) {
     }
 

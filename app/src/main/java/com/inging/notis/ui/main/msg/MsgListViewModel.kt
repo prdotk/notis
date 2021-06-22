@@ -9,10 +9,10 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.inging.notis.data.model.SimpleSummaryData
+import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.repository.NotiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -30,20 +30,30 @@ class MsgListViewModel @Inject constructor(
         repository.getSummaryListByCategory(CATEGORY_MESSAGE)
     }.flow
         .cachedIn(viewModelScope)
+//        .map {
+//            it.insertHeaderItem(
+//                TerminalSeparatorType.FULLY_COMPLETE,
+//                SummaryInfo(0, NotiInfo(notiId = -1, senderType = NotiViewType.HEADER))
+//            )
+//        }
 
     val deleteList = ObservableArrayList<SimpleSummaryData>()
 
-    fun selectTotalNoti() {
-        viewModelScope.launch(Dispatchers.IO) {
-            deleteList.clear()
-            repository.getSummaryIdListByCategory(CATEGORY_MESSAGE).forEach { notiId ->
-                deleteList.add(notiId)
-            }
-        }
-    }
+//    fun selectTotalNoti() {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            deleteList.clear()
+//            repository.getSummaryIdListByCategory(CATEGORY_MESSAGE).forEach { notiId ->
+//                deleteList.add(notiId)
+//            }
+//        }
+//    }
 
     fun clearDeleteList() {
         deleteList.clear()
+    }
+
+    suspend fun delete(info: NotiInfo) {
+        repository.deleteSummaryAndNoti(info.pkgName, info.summaryText)
     }
 
     suspend fun delete() {

@@ -16,32 +16,6 @@
             android:paddingBottom="50dp"
             android:scrollbars="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/layout_notification_item" />
-
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/fabRead"
-            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_margin="16dp"
-            android:contentDescription="@null"
-            android:text="Read All"
-            app:backgroundTint="@color/app"
-            app:icon="@drawable/ic_read"
-            app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
-            app:tint="@color/white" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabDelete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_margin="16dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_trash"
-            android:visibility="gone"
-            app:backgroundTint="@color/app"
-            app:tint="@color/white" />
+            tools:listitem="@layout/layout_pkg_noti_item" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

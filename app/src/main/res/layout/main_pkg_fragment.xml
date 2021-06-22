@@ -46,9 +46,10 @@
             android:id="@+id/recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:overScrollMode="never"
             android:scrollbars="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/layout_pkg_item" />
+            tools:listitem="@layout/layout_pkg_noti_item" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

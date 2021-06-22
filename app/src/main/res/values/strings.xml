@@ -17,6 +17,10 @@
     <string name="main_menu_delete_all">Delete All</string>
     <string name="main_menu_read_all">Read All</string>
 
+    <string name="bottom_sheet_menu_open">Open</string>
+    <string name="bottom_sheet_menu_copy">Copy to clipboard</string>
+    <string name="bottom_sheet_menu_delete">Delete</string>
+
     <string name="me">Me</string>
 
     <string name="today">Today</string>
@@ -29,4 +33,7 @@
     <string name="snack_delete_all_done">All messages have been deleted.</string>
 
     <string name="snack_selected_was_deleted">The selected items have been deleted.</string>
+
+    <string name="snack_copied_to_clipboard">Copied to clipboard.</string>
+    <string name="snack_has_been_deleted">Has been deleted.</string>
 </resources>

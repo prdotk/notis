@@ -5,7 +5,10 @@ import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
+import com.inging.notis.constant.NotiViewType
 import com.inging.notis.data.model.SimpleSummaryData
+import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.data.room.entity.SummaryInfo
 
 /**
@@ -14,16 +17,26 @@ import com.inging.notis.data.room.entity.SummaryInfo
 class MsgListAdapter(
     private val isEditMode: ObservableBoolean,
     private val deletedList: ObservableArrayList<SimpleSummaryData>,
-    private val listener: (Int, String, String, Boolean) -> Unit
-) : PagingDataAdapter<SummaryInfo, MsgListViewHolder>(DiffUtilCallback()) {
+    private val listener: (Int, NotiInfo, Boolean) -> Unit
+) : PagingDataAdapter<SummaryInfo, RecyclerView.ViewHolder>(DiffUtilCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MsgListViewHolder {
-        return MsgListViewHolder.getInstance(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            NotiViewType.HEADER -> AdHeaderViewHolder.getInstance(parent)
+            else -> MsgListViewHolder.getInstance(parent)
+        }
     }
 
-    override fun onBindViewHolder(holder: MsgListViewHolder, position: Int) {
+    override fun getItemViewType(position: Int): Int {
+        return getItem(position)?.recentNotiInfo?.senderType ?: NotiViewType.LEFT
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         getItem(position)?.let {
-            holder.bind(it, isEditMode, deletedList, listener)
+            when (holder) {
+                is AdHeaderViewHolder -> holder.bind()
+                is MsgListViewHolder -> holder.bind(it, isEditMode, deletedList, listener)
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.inging.notis.R
+import com.inging.notis.constant.AdUnitId
 import com.inging.notis.databinding.MainActivityBinding
 import com.inging.notis.extension.loadBottomTabPosition
 import com.inging.notis.extension.permissionNotification
@@ -142,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         }
 
     private fun loadBanner() {
-        adView.adUnitId = AD_UNIT_ID
+        adView.adUnitId = AdUnitId.MAIN_AD
 
         adView.adSize = adSize
 
@@ -156,13 +157,5 @@ class MainActivity : AppCompatActivity() {
 
         // Start loading the ad in the background.
         adView.loadAd(adRequest)
-    }
-
-    companion object {
-        // This is an ad unit ID for a test ad. Replace with your own banner ad unit ID.
-        // test
-//        private val AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"//"ca-app-pub-3940256099942544~3347511713"
-        // real
-        private val AD_UNIT_ID = "ca-app-pub-7364144021153614/7086166140"
     }
 }

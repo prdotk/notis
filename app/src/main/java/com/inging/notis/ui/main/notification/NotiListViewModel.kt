@@ -52,6 +52,14 @@ class NotiListViewModel @Inject constructor(
         deletePkgList.clear()
     }
 
+    // 스와이프로 노티 삭제
+    fun deleteNoti(notiInfo: NotiInfo) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteNotiAndUpdatePkgNoti(notiInfo)
+        }
+    }
+
+    // 선택된 노티 삭제
     suspend fun deleteNoti() {
         withContext(Dispatchers.IO) {
             deleteNotiList.forEach { notiInfo ->
@@ -60,6 +68,7 @@ class NotiListViewModel @Inject constructor(
         }
     }
 
+    // 선택된 패키지 노티 삭제
     suspend fun deletePkgNoti() {
         withContext(Dispatchers.IO) {
             deletePkgList.forEach { pkgNotiInfo ->

@@ -20,12 +20,11 @@ class PkgNotiViewModel @Inject constructor(
 ) : ViewModel() {
 
     var pkgName = ""
+    var word: String = ""
+    var notiId: Long = -1
 
     // 편집모드
     var isEditMode = ObservableBoolean(false)
-
-    // 편집모드
-    var isMsgEditMode = ObservableBoolean(false)
 
     // 패키지 노티 리스트
     fun pkgNotiList(pkgName: String) = Pager(
@@ -46,6 +45,15 @@ class PkgNotiViewModel @Inject constructor(
 //            }
 //        }
 //    }
+
+    // Noti ID로 스크롤 위치찾기
+    suspend fun findPosition(): Int {
+        return if (notiId > 0) {
+            withContext(Dispatchers.IO) {
+                repository.getNotiIdList(pkgName).indexOf(notiId)
+            }
+        } else 0
+    }
 
     fun clearDeleteList() {
         deleteList.clear()

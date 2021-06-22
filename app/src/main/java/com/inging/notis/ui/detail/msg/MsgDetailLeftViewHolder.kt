@@ -38,7 +38,7 @@ class MsgDetailLeftViewHolder(
         lastNotiId: Long,
         isEditMode: ObservableBoolean,
         deletedList: ObservableArrayList<Long>,
-        listener: (Int, Long, Boolean) -> Unit
+        listener: (Int, NotiInfo, Boolean) -> Unit
     ) {
         notiId = info.notiId
         _text = info.text
@@ -85,6 +85,27 @@ class MsgDetailLeftViewHolder(
                 title.searchWordHighlight(word)
             }
 
+            // 이미지
+            CoroutineScope(Dispatchers.Main).launch {
+                picture.visibility = View.GONE
+                if (info.picture.isNotEmpty()) {
+                    val bitmap = info.picture.loadBitmap(root.context)
+                    if (bitmap != null) {
+                        picture.visibility = View.VISIBLE
+                        picture.setImageBitmap(bitmap)
+                    }
+                }
+
+                bgImage.visibility = View.GONE
+                if (info.bgImage.isNotEmpty()) {
+                    val bitmap = info.bgImage.loadBitmap(root.context)
+                    if (bitmap != null) {
+                        bgImage.visibility = View.VISIBLE
+                        bgImage.setImageBitmap(bitmap)
+                    }
+                }
+            }
+
             // 노티 시간
             timestamp.text = info.timestamp.toTime()
             if (isSamePrevMin) {
@@ -104,7 +125,7 @@ class MsgDetailLeftViewHolder(
 
             text.setOnLongClickListener {
                 check.performClick()
-                listener(ClickMode.LONG, info.notiId, false)
+                listener(ClickMode.LONG, info, false)
                 true
             }
 
@@ -121,7 +142,7 @@ class MsgDetailLeftViewHolder(
             check.setOnClickListener {
                 (it as? CheckBox)?.let { check ->
                     info.isChecked = check.isChecked
-                    listener(ClickMode.CHECK, info.notiId, check.isChecked)
+                    listener(ClickMode.CHECK, info, check.isChecked)
                 }
             }
 
@@ -133,7 +154,7 @@ class MsgDetailLeftViewHolder(
 
             layout.setOnLongClickListener {
                 check.performClick()
-                listener(ClickMode.LONG, info.notiId, false)
+                listener(ClickMode.LONG, info, false)
                 true
             }
 

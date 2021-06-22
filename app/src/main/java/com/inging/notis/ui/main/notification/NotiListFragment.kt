@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.isVisible
+import androidx.core.view.isInvisible
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableBoolean
@@ -15,22 +15,23 @@ import androidx.databinding.ObservableInt
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.inging.notis.R
 import com.inging.notis.constant.ClickMode
 import com.inging.notis.constant.NotiListMode
-import com.inging.notis.constant.ServiceCommandType
-import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.databinding.MainNotificationFragmentBinding
 import com.inging.notis.extension.loadNotiListMode
+import com.inging.notis.extension.runContentIntent
 import com.inging.notis.extension.saveNotiListMode
-import com.inging.notis.service.NotisNotificationListenerService
 import com.inging.notis.ui.detail.pkgnoti.PkgNotiActivity
 import com.inging.notis.ui.main.MainFragment
 import com.inging.notis.ui.search.SearchActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class NotiListFragment : MainFragment() {
@@ -42,6 +43,37 @@ class NotiListFragment : MainFragment() {
     private val itemDecoration: DividerItemDecoration by lazy {
         DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
     }
+
+    private val allAdapter: NotiListAllAdapter by lazy {
+        NotiListAllAdapter(
+            viewModel.isEditMode,
+            viewModel.deleteNotiList
+        )
+        { mode, info, isChecked ->
+            when (mode) {
+                ClickMode.DEFAULT -> context?.runContentIntent(info)
+                ClickMode.CHECK -> // 체크 버튼 클릭 시 액션
+                    if (isChecked) viewModel.deleteNotiList.add(info)
+                    else viewModel.deleteNotiList.remove(info)
+                ClickMode.LONG -> viewModel.isEditMode.set(true)
+            }
+        }
+    }
+
+    private val allItemTouchHelper = ItemTouchHelper(object :
+        ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean = false
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            allAdapter.peek(viewHolder.bindingAdapterPosition)?.let {
+                viewModel.deleteNoti(it)
+            }
+        }
+    })
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -82,13 +114,13 @@ class NotiListFragment : MainFragment() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 if (sender is ObservableBoolean) {
                     val isEditMode = sender.get()
-                    binding.listModeAll.isVisible =
-                        !isEditMode && (viewModel.listMode.get() == NotiListMode.ALL)
-                    binding.listModePkg.isVisible =
-                        !isEditMode && (viewModel.listMode.get() == NotiListMode.PKG)
-                    binding.menu.isVisible = !isEditMode
-                    binding.cancel.isVisible = isEditMode
-                    binding.delete.isVisible = isEditMode
+                    binding.listModeAll.isInvisible =
+                        !(!isEditMode && (viewModel.listMode.get() == NotiListMode.ALL))
+                    binding.listModePkg.isInvisible =
+                        !(!isEditMode && (viewModel.listMode.get() == NotiListMode.PKG))
+                    binding.menu.isInvisible = isEditMode
+                    binding.cancel.isInvisible = !isEditMode
+                    binding.delete.isInvisible = !isEditMode
                 }
             }
         })
@@ -148,31 +180,22 @@ class NotiListFragment : MainFragment() {
         binding.listModeAll.visibility = View.VISIBLE
         binding.listModePkg.visibility = View.GONE
 
-        val adapter = NotiListAllAdapter(
-            viewModel.isEditMode,
-            viewModel.deleteNotiList
-        ) { mode, info, isChecked ->
-            when (mode) {
-                ClickMode.DEFAULT -> runContentIntent(info)
-                ClickMode.CHECK -> // 체크 버튼 클릭 시 액션
-                    if (isChecked) viewModel.deleteNotiList.add(info)
-                    else viewModel.deleteNotiList.remove(info)
-                ClickMode.LONG -> viewModel.isEditMode.set(true)
-            }
-        }
-
         lifecycleScope.launch {
             viewModel.allNotiList.collectLatest {
-                adapter.submitData(lifecycle, it)
+                allAdapter.submitData(lifecycle, it)
             }
         }
 
         binding.recycler.run {
 //            itemAnimator = null
-            this.adapter = adapter
+            adapter = allAdapter
             removeItemDecoration(itemDecoration)
             addItemDecoration(itemDecoration)
         }
+
+        allItemTouchHelper.attachToRecyclerView(
+            binding.recycler
+        )
     }
 
     private fun setupPkgNotiList() {
@@ -209,15 +232,8 @@ class NotiListFragment : MainFragment() {
             removeItemDecoration(itemDecoration)
             addItemDecoration(itemDecoration)
         }
-    }
 
-    // 노티 액션 실행
-    private fun runContentIntent(info: NotiInfo) {
-        val intent = Intent(context, NotisNotificationListenerService::class.java)
-        intent.putExtra("COMMAND_TYPE", ServiceCommandType.RUN_CONTENT_INTENT)
-        intent.putExtra("PKG_NAME", info.pkgName)
-        intent.putExtra("NOTI_ID", info.notiId)
-        activity?.startService(intent)
+        allItemTouchHelper.attachToRecyclerView(null)
     }
 
     override fun finishEditMode(): Boolean {

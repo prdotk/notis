@@ -25,8 +25,7 @@ class NotiRepository @Inject constructor(
 //    fun getNotiList() = notiInfoDao.getAll()
 
     // 패키지 노티 리스트
-    fun getNotiList(pkgName: String) =
-        notiInfoDao.getNotiInfoListByPkgName(pkgName)
+    fun getNotiList(pkgName: String) = notiInfoDao.getNotiInfoListByPkgName(pkgName)
 
     // 패키지, 서머리 노티 리스트
     fun getNotiList(pkgName: String, summaryText: String) =
@@ -38,6 +37,9 @@ class NotiRepository @Inject constructor(
     // 노티 ID 리스트
     suspend fun getNotiIdList(pkgName: String, summaryText: String) =
         notiInfoDao.getNotiIdListByPkgNameAndSummaryText(pkgName, summaryText)
+
+    // 노티 ID 리스트
+    suspend fun getNotiIdList(pkgName: String) = notiInfoDao.getNotiIdListByPkgName(pkgName)
 
     // 오래된 마지막 노티
     suspend fun getLastNotiId(pkgName: String, summaryText: String) =
@@ -120,7 +122,26 @@ class NotiRepository @Inject constructor(
     }
 
     // 메시지 노티 삭제 후 서머리 업데이트
-    suspend fun deleteMsgNotiListAndUpdateSummary(idList: List<Long>, pkgName: String, summaryText: String) {
+    suspend fun deleteMsgNotiListAndUpdateSummary(
+        notiId: Long,
+        pkgName: String,
+        summaryText: String
+    ) {
+        notiInfoDao.deleteNotiInfoById(notiId)
+        if (notiInfoDao.getNotiCntByPkgNameAndSummaryText(pkgName, summaryText) > 0) {
+            updateSummaryRecentNoti(pkgName, summaryText)
+        } else {
+            summaryInfoDao.deleteSummaryInfoByPkgNameAndSummaryText(pkgName, summaryText)
+        }
+    }
+
+
+    // 메시지 노티 삭제 후 서머리 업데이트
+    suspend fun deleteMsgNotiListAndUpdateSummary(
+        idList: List<Long>,
+        pkgName: String,
+        summaryText: String
+    ) {
         notiInfoDao.deleteNotiInfoByIdList(idList)
         if (notiInfoDao.getNotiCntByPkgNameAndSummaryText(pkgName, summaryText) > 0) {
             updateSummaryRecentNoti(pkgName, summaryText)

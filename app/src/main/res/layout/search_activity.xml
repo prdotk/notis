@@ -11,7 +11,8 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="14dp"
             android:layout_marginVertical="8dp"
-            app:cardCornerRadius="10dp">
+            app:cardCornerRadius="10dp"
+            app:cardElevation="10dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/toolbar"

@@ -4,9 +4,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.inging.notis.constant.ClickMode
 import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.databinding.LayoutSearchRightItemBinding
-import com.inging.notis.extension.*
+import com.inging.notis.extension.getAppIcon
+import com.inging.notis.extension.loadBitmap
+import com.inging.notis.extension.searchWordHighlight
+import com.inging.notis.extension.toDateTimeOrTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,32 +22,33 @@ class SearchRightViewHolder(
     private val binding: LayoutSearchRightItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(info: NotiInfo, listener: (String, String, Long) -> Unit,
-             prevInfo: NotiInfo?, nextInfo: NotiInfo?, word: String) {
+    fun bind(
+        info: NotiInfo,
+        listener: (Int, NotiInfo) -> Unit,
+//        prevInfo: NotiInfo?,
+//        nextInfo: NotiInfo?,
+        word: String
+    ) {
         binding.run {
-            val isSamePrevMin =
-                info.title == prevInfo?.title && info.senderType == prevInfo.senderType
-            val isSameNextMin = info.timestamp.checkSameMinute(nextInfo?.timestamp)
-                && info.title == nextInfo?.title && info.senderType == nextInfo.senderType
-//            val isSamePrevMin = info.timestamp.checkSameMinute(prevInfo?.timestamp)
-//                && info.title == prevInfo?.title && info.senderType == prevInfo.senderType
-//            val isSameNextMin =
-//                info.title == nextInfo?.title && info.senderType == nextInfo.senderType
-            val isDiffDay = info.timestamp.checkDiffDay(prevInfo?.timestamp)
+//            val isSamePrevMin =
+//                info.title == prevInfo?.title && info.senderType == prevInfo.senderType
+//            val isSameNextMin = info.timestamp.checkSameMinute(nextInfo?.timestamp)
+//                    && info.title == nextInfo?.title && info.senderType == nextInfo.senderType
+//            val isDiffDay = info.timestamp.checkDiffDay(prevInfo?.timestamp)
 
-            if (isDiffDay) {
-                date.visibility = View.VISIBLE
-                date.text = info.timestamp.toDate(root.context)
-            } else {
-                date.visibility = View.GONE
-            }
+//            if (isDiffDay) {
+//                date.visibility = View.VISIBLE
+//                date.text = info.timestamp.toDate(root.context)
+//            } else {
+//                date.visibility = View.GONE
+//            }
 
-            if (isSamePrevMin && !isDiffDay) {
-                iconLayout.visibility = View.GONE
-                summary.visibility = View.GONE
-                title.visibility = View.GONE
-            } else {
-                iconLayout.visibility = View.VISIBLE
+//            if (isSamePrevMin && !isDiffDay) {
+//                iconLayout.visibility = View.GONE
+//                summary.visibility = View.GONE
+//                title.visibility = View.GONE
+//            } else {
+//                iconLayout.visibility = View.VISIBLE
                 summary.visibility = View.VISIBLE
                 title.visibility = View.VISIBLE
 
@@ -76,22 +81,21 @@ class SearchRightViewHolder(
                     summary.text = info.summaryText
                     summary.searchWordHighlight(word)
                 }
-            }
+//            }
 
             // 노티 시간
-            timestamp.text = info.timestamp.toTime()
-            if (isSameNextMin) {
-//            if (isSamePrevMin) {
-                timestamp.visibility = View.INVISIBLE
-            } else {
+            timestamp.text = info.timestamp.toDateTimeOrTime()
+//            if (isSameNextMin) {
+//                timestamp.visibility = View.INVISIBLE
+//            } else {
                 timestamp.visibility = View.VISIBLE
-            }
+//            }
 
             // 노티 내용
             text.text = info.text
             text.searchWordHighlight(word)
             text.setOnClickListener {
-                listener(info.pkgName, info.summaryText, info.notiId)
+                listener(ClickMode.MSG, info)
             }
 //            Linkify.addLinks(text, Linkify.ALL)
         }
@@ -100,7 +104,8 @@ class SearchRightViewHolder(
     companion object {
         fun getInstance(parent: ViewGroup): SearchRightViewHolder {
             val binding = LayoutSearchRightItemBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false)
+                LayoutInflater.from(parent.context), parent, false
+            )
             return SearchRightViewHolder(binding)
         }
     }

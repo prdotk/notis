@@ -5,7 +5,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.isVisible
+import androidx.core.view.isInvisible
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableBoolean
@@ -33,6 +33,8 @@ class PkgNotiActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.pkg_noti_activity)
 
         viewModel.pkgName = intent?.getStringExtra("PKG_NAME") ?: ""
+        viewModel.word = intent?.getStringExtra("WORD") ?: ""
+        viewModel.notiId = intent?.getLongExtra("NOTI_ID", -1) ?: -1
 
         msgDetailFragment = PkgNotiFragment()
 
@@ -69,15 +71,14 @@ class PkgNotiActivity : AppCompatActivity() {
             deleteMessage()
         }
 
-        viewModel.isMsgEditMode.addOnPropertyChangedCallback(
-            object :
-                Observable.OnPropertyChangedCallback() {
+        viewModel.isEditMode.addOnPropertyChangedCallback(
+            object : Observable.OnPropertyChangedCallback() {
                 override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                     if (sender is ObservableBoolean) {
                         val isEditMode = sender.get()
-                        binding.menu.isVisible = !isEditMode
-                        binding.cancel.isVisible = isEditMode
-                        binding.delete.isVisible = isEditMode
+                        binding.menu.isInvisible = isEditMode
+                        binding.cancel.isInvisible = !isEditMode
+                        binding.delete.isInvisible = !isEditMode
                     }
                 }
             })
@@ -107,7 +108,7 @@ class PkgNotiActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (viewModel.isMsgEditMode.get()) {
+        if (viewModel.isEditMode.get()) {
             finishEditMode()
         } else {
             super.onBackPressed()
@@ -117,7 +118,7 @@ class PkgNotiActivity : AppCompatActivity() {
     private fun finishEditMode() {
         lifecycleScope.launch {
             viewModel.clearDeleteList()
-            viewModel.isMsgEditMode.set(false)
+            viewModel.isEditMode.set(false)
         }
     }
 
@@ -144,6 +145,7 @@ class PkgNotiActivity : AppCompatActivity() {
                         R.string.snack_delete_all_done,
                         Snackbar.LENGTH_LONG
                     ).show()
+                    finish()
                 }
             }.setNegativeButton(R.string.alert_negative) { _, _ ->
             }.create().show()

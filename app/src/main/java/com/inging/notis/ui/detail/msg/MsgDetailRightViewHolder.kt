@@ -39,7 +39,7 @@ class MsgDetailRightViewHolder(
         lastNotiId: Long,
         isEditMode: ObservableBoolean,
         deletedList: ObservableArrayList<Long>,
-        listener: (Int, Long, Boolean) -> Unit
+        listener: (Int, NotiInfo, Boolean) -> Unit
     ) {
         notiId = info.notiId
 
@@ -77,7 +77,7 @@ class MsgDetailRightViewHolder(
             check.setOnClickListener {
                 (it as? CheckBox)?.let { check ->
                     info.isChecked = check.isChecked
-                    listener(ClickMode.LONG, info.notiId, check.isChecked)
+                    listener(ClickMode.LONG, info, check.isChecked)
                 }
             }
 
@@ -87,7 +87,7 @@ class MsgDetailRightViewHolder(
 
             layout.setOnLongClickListener {
                 check.performClick()
-                listener(ClickMode.LONG, info.notiId, false)
+                listener(ClickMode.LONG, info, false)
                 true
             }
 

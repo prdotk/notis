@@ -87,8 +87,8 @@ fun Long.checkSameMinute(compareTime: Long?): Boolean {
     val zonedDateTime = Instant.ofEpochMilli(this).atZone(zoneId).toLocalDateTime()
     val compareDateTime = Instant.ofEpochMilli(compareTime).atZone(zoneId).toLocalDateTime()
     return zonedDateTime.dayOfYear == compareDateTime.dayOfYear
-        && zonedDateTime.hour == compareDateTime.hour
-        && zonedDateTime.minute == compareDateTime.minute
+            && zonedDateTime.hour == compareDateTime.hour
+            && zonedDateTime.minute == compareDateTime.minute
 }
 
 // 날짜 표시
@@ -100,7 +100,8 @@ fun Long.toDate(context: Context): String {
     return when {
         // 오늘일 경우 시간만 표시
         localDate.compareTo(today) == 0 -> context.getString(R.string.today)
-        else -> zonedDateTime.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
+        else -> zonedDateTime.toLocalDate()
+            .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
     }
 //    return zonedDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy년 M월 d일 E요일"))
 }
@@ -133,10 +134,28 @@ fun Long.toDateOrTime(): String {
 //                .replace(today.year.toString(), "")
         // 연도가 다를 경우 연도 표시
         else ->
-            zonedDateTime.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+            zonedDateTime.toLocalDate()
+                .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
 //            localDate.format(DateTimeFormatter.ofPattern("yyyy.M.d"))
     }
 }
+
+// 날짜 또는 시간 표시
+fun Long.toDateTimeOrTime(): String {
+    val zoneId = ZoneId.systemDefault()
+    val zonedDateTime = Instant.ofEpochMilli(this).atZone(zoneId)
+    val localDate = zonedDateTime.toLocalDate()
+    val today = Instant.ofEpochMilli(System.currentTimeMillis()).atZone(zoneId).toLocalDate()
+    return when {
+        // 오늘일 경우 시간만 표시
+        localDate.compareTo(today) == 0 ->
+            zonedDateTime.toLocalTime().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+        else ->
+            zonedDateTime.toLocalDateTime()
+                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT))
+    }
+}
+
 
 // 몇시간전, 몇분전, 몇일전
 fun Long.toBeforeTime(): String {

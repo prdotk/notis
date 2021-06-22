@@ -126,7 +126,6 @@
             android:includeFontPadding="false"
             android:textSize="13sp"
             app:layout_constrainedWidth="true"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/thumbnail"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="@id/appIcon"
@@ -134,9 +133,37 @@
             tools:text="Google LLC is an American multinational technology company that specializes in Internet-related services and products, which include online advertising technologies, a search engine, cloud computing, software, and hardware. It is considered one of the Big Five technology companies in the U.S. information technology industry, alongside Amazon, Facebook, Apple, and Microsoft." />
 
         <ImageView
+            android:id="@+id/picture"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@null"
+            android:scaleType="fitXY"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/title"
+            app:layout_constraintTop_toBottomOf="@id/text"
+            tools:src="@drawable/ic_app_default"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/bgImage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="94dp"
+            android:contentDescription="@null"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/title"
+            app:layout_constraintTop_toBottomOf="@id/picture"
+            tools:src="@drawable/ic_app_default"
+            tools:visibility="visible" />
+
+        <ImageView
             android:id="@+id/thumbnail"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:contentDescription="@null"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"

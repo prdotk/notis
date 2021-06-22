@@ -14,7 +14,8 @@ import com.inging.notis.constant.ClickMode
 import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.databinding.LayoutPkgNotiItemBinding
 import com.inging.notis.extension.loadBitmap
-import com.inging.notis.extension.toDateOrTime
+import com.inging.notis.extension.searchWordHighlight
+import com.inging.notis.extension.toDateTimeOrTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,6 +31,7 @@ class PkgNotiViewHolder(
 
     fun bind(
         info: NotiInfo,
+        word: String,
         isEditMode: ObservableBoolean,
         deletedList: ObservableArrayList<NotiInfo>,
         listener: (Int, NotiInfo, Boolean) -> Unit
@@ -50,20 +52,24 @@ class PkgNotiViewHolder(
 
             // 타이틀
             title.text = info.title
+            title.searchWordHighlight(word)
 
             // 서머리
             if (info.title != info.summaryText) {
                 summary.visibility = View.VISIBLE
                 summary.text = info.summaryText
+                summary.searchWordHighlight(word)
             } else {
                 summary.visibility = View.GONE
             }
 
             // 마지막 알림 시간
-            timestamp.text = info.timestamp.toDateOrTime()
+            timestamp.text = info.timestamp.toDateTimeOrTime()
 
             // 노티 내용
+            text.isVisible = info.text.isNotEmpty()
             text.text = info.text
+            text.searchWordHighlight(word)
 
             // 체크 박스
             check.isVisible = isEditMode.get()

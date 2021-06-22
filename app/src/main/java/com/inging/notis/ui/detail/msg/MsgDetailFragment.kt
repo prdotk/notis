@@ -8,6 +8,7 @@ import android.os.ResultReceiver
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
@@ -22,6 +23,7 @@ import com.inging.notis.constant.ClickMode
 import com.inging.notis.constant.ServiceCommandType.CHECK_REPLY_POSSIBLE
 import com.inging.notis.constant.ServiceCommandType.SEND_MESSAGE_TYPE
 import com.inging.notis.databinding.MsgDetailFragmentBinding
+import com.inging.notis.extension.showBottomSheetDialog
 import com.inging.notis.service.NotisNotificationListenerService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -66,18 +68,26 @@ class MsgDetailFragment : Fragment() {
 
         lifecycleScope.launch {
             adapter = MsgDetailAdapter(
-                viewModel.word, viewModel.getLastNotiId(),
+                viewModel.word,
+                viewModel.getLastNotiId(),
                 viewModel.isEditMode,
                 viewModel.deleteList
-            ) { mode, notiId, isChecked ->
+            ) { mode, info, isChecked ->
                 when (mode) {
-                    ClickMode.CHECK ->
-                        // 체크 버튼 클릭 시 액션
-                        if (isChecked)
-                            viewModel.deleteList.add(notiId)
-                        else
-                            viewModel.deleteList.remove(notiId)
-                    ClickMode.LONG -> viewModel.isEditMode.set(true)
+                    ClickMode.CHECK -> // 체크 버튼 클릭 시 액션
+                        if (isChecked) viewModel.deleteList.add(info.notiId)
+                        else viewModel.deleteList.remove(info.notiId)
+                    ClickMode.LONG -> //viewModel.isEditMode.set(true)
+                        requireContext().showBottomSheetDialog(info) {
+                            lifecycleScope.launch {
+                                viewModel.delete(info.notiId)
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.snack_has_been_deleted,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
                 }
             }
             binding.recycler.adapter = adapter

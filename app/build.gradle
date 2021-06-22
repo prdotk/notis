@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -100,8 +101,12 @@ dependencies {
 
     // firebase
     implementation platform("com.google.firebase:firebase-bom:28.1.0")
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation "com.google.firebase:firebase-analytics-ktx"
     implementation 'com.google.firebase:firebase-ads:20.2.0'
+
+    // recyclerview swipe deco
+//    implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.3'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation "androidx.test.ext:junit:$junit_version"

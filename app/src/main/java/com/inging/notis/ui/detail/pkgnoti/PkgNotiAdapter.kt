@@ -11,6 +11,7 @@ import com.inging.notis.data.room.entity.NotiInfo
  * Created by annasu on 2021/04/26.
  */
 class PkgNotiAdapter(
+    private val word: String,
     private val isEditMode: ObservableBoolean,
     private val deletedList: ObservableArrayList<NotiInfo>,
     private val listener: (Int, NotiInfo, Boolean) -> Unit
@@ -22,7 +23,7 @@ class PkgNotiAdapter(
 
     override fun onBindViewHolder(holder: PkgNotiViewHolder, position: Int) {
         getItem(position)?.let {
-            holder.bind(it, isEditMode, deletedList, listener)
+            holder.bind(it, word, isEditMode, deletedList, listener)
         }
     }
 

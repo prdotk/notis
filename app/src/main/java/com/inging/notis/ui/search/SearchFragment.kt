@@ -13,10 +13,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.inging.notis.R
+import com.inging.notis.constant.ClickMode
 import com.inging.notis.databinding.SearchFragmentBinding
 import com.inging.notis.extension.dp2Pixel
 import com.inging.notis.ui.custom.LinearLayoutItemDecoration
 import com.inging.notis.ui.detail.msg.MsgDetailActivity
+import com.inging.notis.ui.detail.pkgnoti.PkgNotiActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -30,14 +32,25 @@ class SearchFragment : Fragment() {
 
     private lateinit var binding: SearchFragmentBinding
 
-    private val adapter: SearchAdapter by lazy {
-        SearchAdapter { pkgName, summaryText, notiId ->
-            val intent = Intent(context, MsgDetailActivity::class.java)
-            intent.putExtra("PKG_NAME", pkgName)
-            intent.putExtra("SUMMARY_TEXT", summaryText)
-            intent.putExtra("WORD", viewModel.word)
-            intent.putExtra("NOTI_ID", notiId)
-            startActivity(intent)
+    private val _adapter: SearchAdapter by lazy {
+        SearchAdapter { mode, info ->
+            when (mode) {
+                ClickMode.MSG -> {
+                    val intent = Intent(context, MsgDetailActivity::class.java)
+                    intent.putExtra("PKG_NAME", info.pkgName)
+                    intent.putExtra("SUMMARY_TEXT", info.summaryText)
+                    intent.putExtra("WORD", viewModel.word)
+                    intent.putExtra("NOTI_ID", info.notiId)
+                    startActivity(intent)
+                }
+                ClickMode.NOTI -> {
+                    val intent = Intent(context, PkgNotiActivity::class.java)
+                    intent.putExtra("PKG_NAME", info.pkgName)
+                    intent.putExtra("WORD", viewModel.word)
+                    intent.putExtra("NOTI_ID", info.notiId)
+                    startActivity(intent)
+                }
+            }
         }
     }
 
@@ -52,7 +65,7 @@ class SearchFragment : Fragment() {
 
         binding.recycler.run {
 //            itemAnimator = null
-            this.adapter = this@SearchFragment.adapter
+            adapter = _adapter
             addItemDecoration(
                 LinearLayoutItemDecoration(
                     0,
@@ -69,7 +82,7 @@ class SearchFragment : Fragment() {
     fun cancel() {
         oldJob?.cancel()
         lifecycleScope.launch {
-            adapter.submitData(lifecycle, PagingData.empty())
+            _adapter.submitData(lifecycle, PagingData.empty())
         }
     }
 
@@ -77,8 +90,8 @@ class SearchFragment : Fragment() {
         cancel()
         oldJob = lifecycleScope.launch {
             viewModel.searchNotiInfoList(word).collectLatest {
-                adapter.word = word
-                adapter.submitData(lifecycle, it)
+                _adapter.word = word
+                _adapter.submitData(lifecycle, it)
                 lifecycleScope.launch {
                     delay(100)
                     val firstVisible = (binding.recycler.layoutManager as LinearLayoutManager)
@@ -86,7 +99,7 @@ class SearchFragment : Fragment() {
                     if (firstVisible <= 1) {
                         binding.recycler.scrollToPosition(0)
                     }
-                    adapter.notifyItemChanged(1)
+                    _adapter.notifyItemChanged(1)
                 }
             }
         }
@@ -96,7 +109,7 @@ class SearchFragment : Fragment() {
     fun refresh() {
         lifecycleScope.launch {
             delay(100)
-            adapter.notifyDataSetChanged()
+            _adapter.notifyDataSetChanged()
         }
     }
 }

@@ -12,6 +12,7 @@ import androidx.databinding.ObservableList
 import androidx.recyclerview.widget.RecyclerView
 import com.inging.notis.constant.ClickMode
 import com.inging.notis.data.model.SimpleSummaryData
+import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.data.room.entity.SummaryInfo
 import com.inging.notis.databinding.LayoutCategoryItemBinding
 import com.inging.notis.extension.getAppIcon
@@ -35,7 +36,7 @@ class MsgListViewHolder(
         info: SummaryInfo,
         isEditMode: ObservableBoolean,
         deletedList: ObservableArrayList<SimpleSummaryData>,
-        listener: (Int, String, String, Boolean) -> Unit
+        listener: (Int, NotiInfo, Boolean) -> Unit
     ) {
         pkgName = info.recentNotiInfo.pkgName
         summaryText = info.recentNotiInfo.summaryText
@@ -84,8 +85,7 @@ class MsgListViewHolder(
                     info.isChecked = check.isChecked
                     listener(
                         ClickMode.CHECK,
-                        info.recentNotiInfo.pkgName,
-                        info.recentNotiInfo.summaryText,
+                        info.recentNotiInfo,
                         check.isChecked
                     )
                 }
@@ -97,8 +97,7 @@ class MsgListViewHolder(
                 } else {
                     listener(
                         ClickMode.DEFAULT,
-                        info.recentNotiInfo.pkgName,
-                        info.recentNotiInfo.summaryText,
+                        info.recentNotiInfo,
                         false
                     )
                 }
@@ -108,8 +107,7 @@ class MsgListViewHolder(
                 check.performClick()
                 listener(
                     ClickMode.LONG,
-                    info.recentNotiInfo.pkgName,
-                    info.recentNotiInfo.summaryText,
+                    info.recentNotiInfo,
                     false
                 )
                 true
