@@ -52,11 +52,14 @@ open class MsgDetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVie
         }
 
     open fun bind(
-        info: NotiInfo, prevInfo: NotiInfo?, nextInfo: NotiInfo?,
-        word: String, lastNotiId: Long,
+        info: NotiInfo,
+        prevInfo: NotiInfo?,
+        nextInfo: NotiInfo?,
+        word: String,
         isEditMode: ObservableBoolean,
         deletedList: ObservableArrayList<Long>,
-        listener: (Int, NotiInfo, Boolean) -> Unit
+        listener: (Int, NotiInfo, Boolean, Int) -> Unit,
+        position: Int
     ) {
     }
 

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/settings_nav_graph"
+    app:startDestination="@id/moreFragment">
+
+    <fragment
+        android:id="@+id/moreFragment"
+        android:name="com.inging.notis.ui.main.more.MoreFragment"
+        android:label="MoreFragment">
+        <action
+            android:id="@+id/action_moreFragment_to_darkModeFragment"
+            app:destination="@id/darkModeFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_moreFragment_to_blockAppsFragment"
+            app:destination="@id/blockAppsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_moreFragment_to_saveAppsFragment"
+            app:destination="@id/saveAppsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/darkModeFragment"
+        android:name="com.inging.notis.ui.main.more.darkmode.DarkModeFragment"
+        android:label="DarkModeFragment" />
+    <fragment
+        android:id="@+id/blockAppsFragment"
+        android:name="com.inging.notis.ui.main.more.block.BlockAppsFragment"
+        android:label="BlockAppsFragment" />
+    <fragment
+        android:id="@+id/saveAppsFragment"
+        android:name="com.inging.notis.ui.main.more.save.SaveAppsFragment"
+        android:label="SaveAppsFragment" />
+</navigation>

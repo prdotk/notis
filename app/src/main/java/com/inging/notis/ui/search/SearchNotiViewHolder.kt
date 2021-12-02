@@ -36,12 +36,22 @@ class SearchNotiViewHolder(
                 appIcon.setImageDrawable(root.context.getAppIcon(info.pkgName))
 
                 // 썸네일
-                val bitmap = info.largeIcon.loadBitmap(root.context)
-                if (bitmap != null) {
-                    thumbnail.visibility = View.VISIBLE
-                    thumbnail.setImageBitmap(bitmap)
-                } else {
-                    thumbnail.visibility = View.GONE
+                thumbnail.visibility = View.GONE
+                if (info.largeIcon.isNotEmpty()) {
+                    val bitmap = info.largeIcon.loadBitmap(root.context)
+                    if (bitmap != null) {
+                        thumbnail.visibility = View.VISIBLE
+                        thumbnail.setImageBitmap(bitmap)
+                    }
+                }
+
+                picture.visibility = View.GONE
+                if (info.picture.isNotEmpty()) {
+                    val bitmap = info.picture.loadBitmap(root.context)
+                    if (bitmap != null) {
+                        picture.visibility = View.VISIBLE
+                        picture.setImageBitmap(bitmap)
+                    }
                 }
             }
 
@@ -53,7 +63,7 @@ class SearchNotiViewHolder(
             title.searchWordHighlight(word)
 
             // 서머리
-            if (info.title != info.summaryText) {
+            if (info.title != info.summaryText && info.summaryText != info.text) {
                 summary.visibility = View.VISIBLE
                 summary.text = info.summaryText
                 summary.searchWordHighlight(word)
@@ -87,11 +97,11 @@ class SearchNotiViewHolder(
 //                }
             }
 
-//            layout.setOnLongClickListener {
+            layout.setOnLongClickListener {
 //                check.performClick()
-//                listener(ClickMode.LONG, info, false)
-//                true
-//            }
+                listener(ClickMode.LONG, info)
+                true
+            }
 //
 //            isEditMode.addOnPropertyChangedCallback(onEditModeChanged)
 //

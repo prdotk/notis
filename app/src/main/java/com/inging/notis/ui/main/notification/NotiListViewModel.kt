@@ -12,6 +12,7 @@ import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.data.room.entity.PkgNotiInfo
 import com.inging.notis.repository.NotiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,6 +32,20 @@ class NotiListViewModel @Inject constructor(
     ) {
         repository.getNotiListByNotMsg()
     }.flow
+//        .map {
+//            it.insertSeparators { before: NotiInfo?, after: NotiInfo? ->
+//                if (after != null) {
+//                    val isDiffDay = after.timestamp.checkDiffDay(before?.timestamp)
+//                    if (isDiffDay) {
+//                        NotiInfo(
+//                            notiId = -1,
+//                            senderType = NotiViewType.SEPARATOR,
+//                            timestamp = after.timestamp
+//                        )
+//                    } else null
+//                } else null
+//            }
+//        }
         .cachedIn(viewModelScope)
 
     // 패키지별 대표노티
@@ -43,35 +58,44 @@ class NotiListViewModel @Inject constructor(
 
     val listMode = ObservableInt(-1)
 
-    val deleteNotiList = ObservableArrayList<NotiInfo>()
+    val selectedNotiList = ObservableArrayList<NotiInfo>()
+    val selectedPkgList = ObservableArrayList<PkgNotiInfo>()
 
-    val deletePkgList = ObservableArrayList<PkgNotiInfo>()
+    var deleteNotiList = emptyList<NotiInfo>()
+    var deletePkgList = emptyList<PkgNotiInfo>()
 
     fun clearDeleteList() {
-        deleteNotiList.clear()
-        deletePkgList.clear()
+        selectedNotiList.clear()
+        selectedPkgList.clear()
     }
 
     // 스와이프로 노티 삭제
-    fun deleteNoti(notiInfo: NotiInfo) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteNotiAndUpdatePkgNoti(notiInfo)
-        }
-    }
+//    suspend fun deleteNoti(notiInfo: NotiInfo) {
+//        withContext(Dispatchers.IO) {
+//            repository.deleteNotiAndUpdatePkgNoti(notiInfo)
+//        }
+//    }
 
     // 선택된 노티 삭제
-    suspend fun deleteNoti() {
-        withContext(Dispatchers.IO) {
-            deleteNotiList.forEach { notiInfo ->
+    fun deleteNoti(list: List<NotiInfo>) {
+        CoroutineScope(Dispatchers.IO).launch {
+            list.forEach { notiInfo ->
                 repository.deleteNotiAndUpdatePkgNoti(notiInfo)
             }
         }
     }
 
     // 선택된 패키지 노티 삭제
-    suspend fun deletePkgNoti() {
-        withContext(Dispatchers.IO) {
-            deletePkgList.forEach { pkgNotiInfo ->
+//    suspend fun deletePkgNoti(pkgNotiInfo: PkgNotiInfo) {
+//        withContext(Dispatchers.IO) {
+//            repository.deletePkgNotiAndNotiInfo(pkgNotiInfo)
+//        }
+//    }
+
+    // 선택된 패키지 노티 삭제
+    fun deletePkg(list: List<PkgNotiInfo>) {
+        CoroutineScope(Dispatchers.IO).launch {
+            list.forEach { pkgNotiInfo ->
                 repository.deletePkgNotiAndNotiInfo(pkgNotiInfo)
             }
         }
@@ -80,6 +104,36 @@ class NotiListViewModel @Inject constructor(
     fun deleteAll() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteAllNotMsg()
+        }
+    }
+
+    suspend fun undoDeleteNoti() {
+        withContext(Dispatchers.IO) {
+            val idList = deleteNotiList.map { it.notiId }
+            repository.updateNotiDeleted(idList, true)
+        }
+    }
+
+    suspend fun undoRestoreNoti() {
+        withContext(Dispatchers.IO) {
+            val idList = deleteNotiList.map { it.notiId }
+            repository.updateNotiDeleted(idList, false)
+        }
+    }
+
+    suspend fun undoDeletePkg() {
+        withContext(Dispatchers.IO) {
+            deletePkgList.forEach { data ->
+                repository.updatePkgNotiDeleted(data.pkgNameId, true)
+            }
+        }
+    }
+
+    suspend fun undoRestorePkg() {
+        withContext(Dispatchers.IO) {
+            deletePkgList.forEach { data ->
+                repository.updatePkgNotiDeleted(data.pkgNameId, false)
+            }
         }
     }
 }

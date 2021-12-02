@@ -43,6 +43,8 @@
                     android:background="@android:color/transparent"
                     android:gravity="start|center_vertical"
                     android:hint="@string/search"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
                     android:minHeight="36dp"
                     android:singleLine="true"
                     android:textColor="?textColor"

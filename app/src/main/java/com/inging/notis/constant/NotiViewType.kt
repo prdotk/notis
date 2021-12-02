@@ -17,4 +17,7 @@ object NotiViewType {
 
     // 90: 헤더
     const val HEADER = 90
+
+    // 91: separator
+    const val SEPARATOR = 91
 }

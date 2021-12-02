@@ -1,0 +1,13 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="23dp"
+        android:textColor="@color/text_dark"
+        android:textSize="13sp"
+        tools:text="2021년 10월 20일 월요일" />
+</layout>

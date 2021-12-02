@@ -3,12 +3,9 @@ package com.inging.notis.repository
 import androidx.core.app.NotificationCompat.CATEGORY_MESSAGE
 import androidx.paging.PagingSource
 import androidx.room.Transaction
-import com.inging.notis.data.room.dao.NotiInfoDao
-import com.inging.notis.data.room.dao.PkgNotiInfoDao
-import com.inging.notis.data.room.dao.SummaryInfoDao
-import com.inging.notis.data.room.entity.NotiInfo
-import com.inging.notis.data.room.entity.PkgNotiInfo
-import com.inging.notis.data.room.entity.SummaryInfo
+import com.inging.notis.data.model.AppInfo
+import com.inging.notis.data.room.dao.*
+import com.inging.notis.data.room.entity.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,13 +16,16 @@ import javax.inject.Singleton
 class NotiRepository @Inject constructor(
     private val notiInfoDao: NotiInfoDao,
     private val summaryInfoDao: SummaryInfoDao,
-    private val pkgNotiInfoDao: PkgNotiInfoDao
+    private val pkgNotiInfoDao: PkgNotiInfoDao,
+    private val searchHistoryDao: SearchHistoryDao,
+    private val pkgInfoDao: PkgInfoDao
 ) {
     // 노티 목록
 //    fun getNotiList() = notiInfoDao.getAll()
 
-    // 패키지 노티 리스트
-    fun getNotiList(pkgName: String) = notiInfoDao.getNotiInfoListByPkgName(pkgName)
+    // 패키지 메시지 아닌 노티 리스트
+    fun getNotiListNotMsg(pkgName: String) =
+        notiInfoDao.getNotiInfoListByPkgNameNotMsg(pkgName)
 
     // 패키지, 서머리 노티 리스트
     fun getNotiList(pkgName: String, summaryText: String) =
@@ -115,6 +115,11 @@ class NotiRepository @Inject constructor(
             }
     }
 
+    // 서머리 임시 삭제
+    suspend fun updateSummaryDeleted(pkgName: String, summaryText: String, deleted: Boolean) {
+        summaryInfoDao.updateDeleted(pkgName, summaryText, deleted)
+    }
+
     // 서머리 삭제
     suspend fun deleteSummaryAndNoti(pkgName: String, summaryText: String) {
         summaryInfoDao.deleteSummaryInfoByPkgNameAndSummaryText(pkgName, summaryText)
@@ -135,6 +140,10 @@ class NotiRepository @Inject constructor(
         }
     }
 
+    // 메시지 노티 임시 삭제
+    suspend fun updateNotiDeleted(idList: List<Long>, deleted: Boolean) {
+        notiInfoDao.updateDeleted(idList, deleted)
+    }
 
     // 메시지 노티 삭제 후 서머리 업데이트
     suspend fun deleteMsgNotiListAndUpdateSummary(
@@ -150,10 +159,15 @@ class NotiRepository @Inject constructor(
         }
     }
 
-    // 서머리 최신 노티 업데이트, 삭제 시
+    // 패키지 노티 임시 삭제
+    suspend fun updatePkgNotiDeleted(pkgName: String, deleted: Boolean) {
+        pkgNotiInfoDao.updateDeleted(pkgName, deleted)
+    }
+
+    // 패키지 최신 노티 업데이트, 삭제 시
     private suspend fun updatePkgNotiRecentNoti(pkgName: String) {
         pkgNotiInfoDao.getPkgNotiInfoByPkgName(pkgName)?.also { pkgNotiInfo ->
-            notiInfoDao.getRecentNotiInfoByPkgName(pkgName)?.also { notiInfo ->
+            notiInfoDao.getRecentNotiInfoByPkgNameAndNotMsg(pkgName)?.also { notiInfo ->
                 pkgNotiInfo.recentNotiInfo = notiInfo
                 pkgNotiInfoDao.insert(pkgNotiInfo)
             }
@@ -215,44 +229,83 @@ class NotiRepository @Inject constructor(
 
     @Transaction
     suspend fun insertNoti(info: NotiInfo): Long {
-        var notiId = -1L
-        // 중복 노티 확인
-        if (checkDuplicatedNoti(info)) {
-            // 노티 업데이트
-            notiId = notiInfoDao.insert(info)
-            // 메시지는 서머리 저장 아닌 노티는 패키지 정보 저장
-            if (info.category == CATEGORY_MESSAGE) {
-                // 서머리 업데이트
-                val summaryText = info.summaryText
-                val summaryInfo =
-                    summaryInfoDao.getSummaryInfoByPkgNameAndSummaryText(info.pkgName, summaryText)
-                val unreadCnt = (summaryInfo?.unreadCnt ?: 0) + 1
-                summaryInfoDao.insert(SummaryInfo(unreadCnt, info))
-            } else {
-                // 해당 패키지 노티 갯수
-                val notiCount = notiInfoDao.getPkgNotiCount(info.pkgName)
-                // 해당 패키지 노티 않읽은 갯수
-                val pkgNotiInfo =
-                    pkgNotiInfoDao.getPkgNotiInfoByPkgName(info.pkgName)
-                val unreadCnt = (pkgNotiInfo?.unreadCnt ?: 0) + 1
-                // 인서트 및 업데이트
-                pkgNotiInfoDao.insert(PkgNotiInfo(info.pkgName, info, notiCount, unreadCnt))
-            }
+        // 노티 업데이트
+        val notiId = notiInfoDao.insert(info)
+
+        // 서머리 업데이트
+        val summaryText = info.summaryText
+        val summaryInfo =
+            summaryInfoDao.getSummaryInfoByPkgNameAndSummaryText(info.pkgName, summaryText)
+        var unreadCnt = (summaryInfo?.unreadCnt ?: 0) + 1
+        summaryInfoDao.insert(SummaryInfo(unreadCnt, info))
+
+        // 패키지 노티 업데이트
+        if (info.category != CATEGORY_MESSAGE) {
+            // 해당 패키지 노티 갯수
+            val notiCount = notiInfoDao.getPkgNotiCountAndNotMsg(info.pkgName)
+            // 해당 패키지 노티 않읽은 갯수
+            val pkgNotiInfo = pkgNotiInfoDao.getPkgNotiInfoByPkgName(info.pkgName)
+            unreadCnt = (pkgNotiInfo?.unreadCnt ?: 0) + 1
+            // 인서트 및 업데이트
+            pkgNotiInfoDao.insert(PkgNotiInfo(info.pkgName, info, notiCount, unreadCnt))
         }
+
         return notiId
     }
 
     // 중복 노티가 있는지 체크, 1초이내 같은 노티면 저장안함
-    private suspend fun checkDuplicatedNoti(info: NotiInfo): Boolean {
-        notiInfoDao.getRecentNotiInfoByPkgNameAndSummaryTextAndText(
-            info.pkgName, info.summaryText, info.text
-        )?.let { noti ->
-            val time = info.timestamp - noti.timestamp
-            // 같은 내용의 노티가 1초이내면 스킵
-            return time > 1000
-        }
-        return true
-    }
+//    private suspend fun checkDuplicatedNoti(info: NotiInfo): Boolean {
+//        notiInfoDao.getRecentNotiInfoByPkgNameAndSummaryTextAndText(
+//            info.pkgName, info.summaryText, info.text
+//        )?.let { noti ->
+//            val time = info.timestamp - noti.timestamp
+//            // 같은 내용의 노티가 1초이내면 스킵
+//            return time > 1000
+//        }
+//        return true
+//    }
 
     // 중복 노티가 있는지 체크, 같은 내용의 노티면 시간만 업데이트하도록.. 정책에 따라
+
+    // 검색 히스토리 목록
+    fun getSearchHistoryList() = searchHistoryDao.getAll()
+
+    // 검색 히스토리 저장
+    suspend fun saveSearchHistory(word: String) {
+        if (word.isNotEmpty()) {
+            val currentTime = System.currentTimeMillis()
+            searchHistoryDao.findByWord(word)?.let {
+                it.timestamp = currentTime
+                searchHistoryDao.insert(it)
+            } ?: run {
+                searchHistoryDao.insert(SearchHistoryInfo(word, currentTime))
+            }
+        }
+    }
+
+    // 검색 히스토리 삭제
+    suspend fun deleteSearchHistory(word: String) =
+        searchHistoryDao.deleteSearchHistoryInfoByWord(word)
+
+    // 패키지 정보
+    suspend fun getPkgInfoList() = pkgInfoDao.getAll()
+
+    // 패키지 정보 flow
+    fun getPkgInfoListFlow() = pkgInfoDao.getAllFlow()
+
+    // 검색 히스토리 저장
+    suspend fun savePkgInfo(info: AppInfo) {
+        pkgInfoDao.findByPkgName(info.pkgName)?.let {
+            it.isBlock = info.isBlock
+            it.isSave = info.isSave
+            pkgInfoDao.insert(it)
+        } ?: run {
+            pkgInfoDao.insert(PkgInfo(info.pkgName, info.isBlock, info.isSave))
+        }
+    }
+
+    // 검색 히스토리 저장
+    suspend fun savePkgInfo(info: PkgInfo) {
+        pkgInfoDao.insert(info)
+    }
 }

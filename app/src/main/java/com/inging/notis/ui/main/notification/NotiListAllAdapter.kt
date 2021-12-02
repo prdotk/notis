@@ -5,6 +5,8 @@ import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
+import com.inging.notis.constant.NotiViewType
 import com.inging.notis.data.room.entity.NotiInfo
 
 /**
@@ -14,15 +16,25 @@ class NotiListAllAdapter(
     private val isEditMode: ObservableBoolean,
     private val deletedList: ObservableArrayList<NotiInfo>,
     private val listener: (Int, NotiInfo, Boolean) -> Unit
-) : PagingDataAdapter<NotiInfo, NotiListAllViewHolder>(DiffUtilCallback()) {
+) : PagingDataAdapter<NotiInfo, RecyclerView.ViewHolder>(DiffUtilCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotiListAllViewHolder {
-        return NotiListAllViewHolder.getInstance(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            NotiViewType.SEPARATOR -> NotiListAllSeparatorViewHolder.getInstance(parent)
+            else -> NotiListAllViewHolder.getInstance(parent)
+        }
     }
 
-    override fun onBindViewHolder(holder: NotiListAllViewHolder, position: Int) {
+    override fun getItemViewType(position: Int): Int {
+        return getItem(position)?.senderType ?: NotiViewType.LEFT
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         getItem(position)?.let {
-            holder.bind(it, isEditMode, deletedList, listener)
+            when (holder) {
+                is NotiListAllViewHolder -> holder.bind(it, isEditMode, deletedList, listener)
+                is NotiListAllSeparatorViewHolder -> holder.bind(it)
+            }
         }
     }
 

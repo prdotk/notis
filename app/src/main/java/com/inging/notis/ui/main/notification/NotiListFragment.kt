@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.inging.notis.R
 import com.inging.notis.constant.ClickMode
@@ -25,8 +26,10 @@ import com.inging.notis.databinding.MainNotificationFragmentBinding
 import com.inging.notis.extension.loadNotiListMode
 import com.inging.notis.extension.runContentIntent
 import com.inging.notis.extension.saveNotiListMode
+import com.inging.notis.extension.showBottomSheetDialog
 import com.inging.notis.ui.detail.pkgnoti.PkgNotiActivity
 import com.inging.notis.ui.main.MainFragment
+import com.inging.notis.ui.main.more.MoreActivity
 import com.inging.notis.ui.search.SearchActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -40,22 +43,53 @@ class NotiListFragment : MainFragment() {
 
     private lateinit var binding: MainNotificationFragmentBinding
 
+    private var snack: Snackbar? = null
+
     private val itemDecoration: DividerItemDecoration by lazy {
         DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
     }
 
+    // 모든 노티 리스트 어댑터
     private val allAdapter: NotiListAllAdapter by lazy {
         NotiListAllAdapter(
             viewModel.isEditMode,
-            viewModel.deleteNotiList
+            viewModel.selectedNotiList
         )
         { mode, info, isChecked ->
             when (mode) {
-                ClickMode.DEFAULT -> context?.runContentIntent(info)
+                ClickMode.DEFAULT -> { context?.runContentIntent(info) }
                 ClickMode.CHECK -> // 체크 버튼 클릭 시 액션
-                    if (isChecked) viewModel.deleteNotiList.add(info)
-                    else viewModel.deleteNotiList.remove(info)
-                ClickMode.LONG -> viewModel.isEditMode.set(true)
+                    if (isChecked) viewModel.selectedNotiList.add(info)
+                    else viewModel.selectedNotiList.remove(info)
+                ClickMode.LONG -> //viewModel.isEditMode.set(true)
+                    requireContext().showBottomSheetDialog(info) {
+                        viewModel.selectedNotiList.add(info)
+                        undoDeleteNoti()
+                    }
+            }
+        }
+    }
+
+    // 패키지 노티 리스트 어댑터
+    private val pkgAdapter: NotiListPkgAdapter by lazy {
+        NotiListPkgAdapter(
+            viewModel.isEditMode,
+            viewModel.selectedPkgList
+        ) { mode, info, isChecked ->
+            when (mode) {
+                ClickMode.DEFAULT -> {
+                    val intent = Intent(context, PkgNotiActivity::class.java)
+                    intent.putExtra("PKG_NAME", info.pkgNameId)
+                    startActivity(intent)
+                }
+                ClickMode.CHECK -> // 체크 버튼 클릭 시 액션
+                    if (isChecked) viewModel.selectedPkgList.add(info)
+                    else viewModel.selectedPkgList.remove(info)
+                ClickMode.LONG -> //viewModel.isEditMode.set(true)
+                    requireContext().showBottomSheetDialog(info.recentNotiInfo) {
+                        viewModel.selectedPkgList.add(info)
+                        undoDeletePkg()
+                    }
             }
         }
     }
@@ -70,7 +104,11 @@ class NotiListFragment : MainFragment() {
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             allAdapter.peek(viewHolder.bindingAdapterPosition)?.let {
-                viewModel.deleteNoti(it)
+                viewModel.selectedNotiList.add(it)
+                undoDeleteNoti()
+//                lifecycleScope.launch {
+//                    viewModel.deleteNoti(it)
+//                }
             }
         }
     })
@@ -121,6 +159,8 @@ class NotiListFragment : MainFragment() {
                     binding.menu.isInvisible = isEditMode
                     binding.cancel.isInvisible = !isEditMode
                     binding.delete.isInvisible = !isEditMode
+
+                    setSwipe(!isEditMode)
                 }
             }
         })
@@ -144,8 +184,8 @@ class NotiListFragment : MainFragment() {
         // 삭제 버튼
         binding.delete.setOnClickListener {
             when (viewModel.listMode.get()) {
-                NotiListMode.ALL -> delete()
-                NotiListMode.PKG -> deletePkg()
+                NotiListMode.ALL -> undoDeleteNoti()
+                NotiListMode.PKG -> undoDeletePkg()
             }
         }
 
@@ -162,6 +202,11 @@ class NotiListFragment : MainFragment() {
                         // 모두 삭제
                         R.id.main_menu_delete_all -> {
                             deleteAll()
+                            true
+                        }
+                        // 설정
+                        R.id.main_menu_settings -> {
+                            startActivity(Intent(context, MoreActivity::class.java))
                             true
                         }
                         else -> false
@@ -190,12 +235,10 @@ class NotiListFragment : MainFragment() {
 //            itemAnimator = null
             adapter = allAdapter
             removeItemDecoration(itemDecoration)
-            addItemDecoration(itemDecoration)
+//            addItemDecoration(itemDecoration)
         }
 
-        allItemTouchHelper.attachToRecyclerView(
-            binding.recycler
-        )
+        setSwipe(true)
     }
 
     private fun setupPkgNotiList() {
@@ -203,37 +246,28 @@ class NotiListFragment : MainFragment() {
         binding.listModeAll.visibility = View.GONE
         binding.listModePkg.visibility = View.VISIBLE
 
-        val adapter = NotiListPkgAdapter(
-            viewModel.isEditMode,
-            viewModel.deletePkgList
-        ) { mode, info, isChecked ->
-            when (mode) {
-                ClickMode.DEFAULT -> {
-                    val intent = Intent(context, PkgNotiActivity::class.java)
-                    intent.putExtra("PKG_NAME", info.pkgNameId)
-                    startActivity(intent)
-                }
-                ClickMode.CHECK -> // 체크 버튼 클릭 시 액션
-                    if (isChecked) viewModel.deletePkgList.add(info)
-                    else viewModel.deletePkgList.remove(info)
-                ClickMode.LONG -> viewModel.isEditMode.set(true)
-            }
-        }
-
         lifecycleScope.launch {
             viewModel.pkgNotiList.collectLatest {
-                adapter.submitData(lifecycle, it)
+                pkgAdapter.submitData(lifecycle, it)
             }
         }
 
         binding.recycler.run {
 //            itemAnimator = null
-            this.adapter = adapter
+            adapter = pkgAdapter
             removeItemDecoration(itemDecoration)
             addItemDecoration(itemDecoration)
         }
 
-        allItemTouchHelper.attachToRecyclerView(null)
+        setSwipe(false)
+    }
+
+    private fun setSwipe(enable: Boolean) {
+        if (enable) {
+            allItemTouchHelper.attachToRecyclerView(binding.recycler)
+        } else {
+            allItemTouchHelper.attachToRecyclerView(null)
+        }
     }
 
     override fun finishEditMode(): Boolean {
@@ -246,34 +280,84 @@ class NotiListFragment : MainFragment() {
         }
     }
 
-    private fun delete() {
+    private fun undoDeleteNoti() {
         lifecycleScope.launch {
-            viewModel.deleteNoti()
+            snack?.dismiss()
+
+            viewModel.deleteNotiList = viewModel.selectedNotiList.toList()
+            viewModel.undoDeleteNoti()
+
             finishEditMode()
-            Snackbar.make(
-                binding.root,
-                R.string.snack_selected_was_deleted,
-                Snackbar.LENGTH_LONG
-            ).show()
+
+            val message = "${viewModel.deleteNotiList.size} ${getString(R.string.snack_deleted)}"
+            snack = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).run {
+                setAction(getString(R.string.snack_undo)) {
+                    lifecycleScope.launch {
+                        viewModel.undoRestoreNoti()
+                        viewModel.selectedNotiList.clear()
+                    }
+                }
+                addCallback(object : Snackbar.Callback() {
+                    val list = viewModel.deleteNotiList.toList()
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        when (event) {
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION -> {
+                            }
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_CONSECUTIVE,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_MANUAL,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_SWIPE,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_TIMEOUT -> {
+                                viewModel.deleteNoti(list)
+                            }
+                        }
+                    }
+                })
+            }
+            snack?.show()
         }
     }
 
-    private fun deletePkg() {
+    private fun undoDeletePkg() {
         lifecycleScope.launch {
-            viewModel.deletePkgNoti()
+            snack?.dismiss()
+
+            viewModel.deletePkgList = viewModel.selectedPkgList.toList()
+            viewModel.undoDeletePkg()
+
             finishEditMode()
-            Snackbar.make(
-                binding.root,
-                R.string.snack_selected_was_deleted,
-                Snackbar.LENGTH_LONG
-            ).show()
+
+            val message = "${viewModel.deletePkgList.size} ${getString(R.string.snack_deleted)}"
+            snack = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).run {
+                setAction(getString(R.string.snack_undo)) {
+                    lifecycleScope.launch {
+                        viewModel.undoRestorePkg()
+                        viewModel.selectedPkgList.clear()
+                    }
+                }
+                addCallback(object : Snackbar.Callback() {
+                    val list = viewModel.deletePkgList.toList()
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        when (event) {
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION -> {
+                            }
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_CONSECUTIVE,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_MANUAL,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_SWIPE,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_TIMEOUT -> {
+                                viewModel.deletePkg(list)
+                            }
+                        }
+                    }
+                })
+            }
+            snack?.show()
         }
     }
 
     private fun deleteAll() {
         AlertDialog.Builder(requireContext())
-            .setMessage(R.string.alert_delete_all)
-            .setPositiveButton(R.string.alert_positive) { _, _ ->
+            .setMessage(R.string.delete_all_notifications)
+            .setPositiveButton(R.string.dialog_ok) { _, _ ->
                 lifecycleScope.launch {
                     viewModel.deleteAll()
                     Snackbar.make(
@@ -282,7 +366,7 @@ class NotiListFragment : MainFragment() {
                         Snackbar.LENGTH_LONG
                     ).show()
                 }
-            }.setNegativeButton(R.string.alert_negative) { _, _ ->
+            }.setNegativeButton(R.string.dialog_cancel) { _, _ ->
             }.create().show()
     }
 }

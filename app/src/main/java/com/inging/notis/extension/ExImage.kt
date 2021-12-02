@@ -3,7 +3,9 @@ package com.inging.notis.extension
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -12,6 +14,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+
 
 /**
  * Created by annasu on 2021/04/29.
@@ -68,4 +71,17 @@ fun Bitmap.saveFile(context: Context, dir: String): String {
     }
     Log.d("imgPath", context.cacheDir.absolutePath + "/" + dir)
     return result
+}
+
+// drawable -> bitmap
+fun Drawable.getBitmap(): Bitmap? {
+    val bmp = Bitmap.createBitmap(
+        intrinsicWidth,
+        intrinsicHeight,
+        Bitmap.Config.ARGB_8888
+    )
+    val canvas = Canvas(bmp)
+    setBounds(0, 0, canvas.width, canvas.height)
+    draw(canvas)
+    return bmp
 }

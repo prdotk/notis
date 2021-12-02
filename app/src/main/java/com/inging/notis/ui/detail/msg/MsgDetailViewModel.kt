@@ -9,11 +9,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
 import com.inging.notis.constant.NotiViewType
 import com.inging.notis.data.room.entity.NotiInfo
+import com.inging.notis.extension.checkDiffDay
 import com.inging.notis.repository.NotiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -45,12 +49,28 @@ class MsgDetailViewModel @Inject constructor(
     ) {
         repository.getNotiList(pkgName, summaryText)
     }.flow
+        .map {
+            it.insertSeparators { before: NotiInfo?, after: NotiInfo? ->
+                if (before != null) {
+                    val isDiffDay = before.timestamp.checkDiffDay(after?.timestamp)
+                    if (isDiffDay) {
+                        NotiInfo(
+                            notiId = -1,
+                            senderType = NotiViewType.SEPARATOR,
+                            timestamp = before.timestamp,
+                            deleted = false
+                        )
+                    } else null
+                } else null
+            }
+        }
         .cachedIn(viewModelScope)
 
     // 보낸 데이터 저장
     fun saveMessage(messageText: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val notiInfo = NotiInfo(pkgName = pkgName, senderType = NotiViewType.RIGHT)
+            val notiInfo =
+                NotiInfo(pkgName = pkgName, senderType = NotiViewType.RIGHT)
             notiInfo.category = recentNoti?.category ?: ""
             notiInfo.title = recentNoti?.title ?: ""
             notiInfo.largeIcon = recentNoti?.largeIcon ?: ""
@@ -72,21 +92,22 @@ class MsgDetailViewModel @Inject constructor(
     }
 
     // 제일 오래된 노티 ID
-    suspend fun getLastNotiId(): Long {
-        return withContext(Dispatchers.IO) {
-            repository.getLastNotiId(pkgName, summaryText)
-        }
-    }
+//    suspend fun getLastNotiId(): Long {
+//        return withContext(Dispatchers.IO) {
+//            repository.getLastNotiId(pkgName, summaryText)
+//        }
+//    }
 
     // 노티 읽음 처리
-    suspend fun readUpdateSummary() {
-        return withContext(Dispatchers.IO) {
+    fun readUpdateSummary() {
+        CoroutineScope(Dispatchers.IO).launch {
             repository.readUpdateSummary(pkgName, summaryText)
         }
     }
 
     // 삭제 목록
-    val deleteList = ObservableArrayList<Long>()
+    val selectedList = ObservableArrayList<Long>()
+    var deleteList = emptyList<Long>()
 
 //    fun selectTotalNoti() {
 //        viewModelScope.launch(Dispatchers.IO) {
@@ -98,24 +119,30 @@ class MsgDetailViewModel @Inject constructor(
 //    }
 
     fun clearDeleteList() {
-        deleteList.clear()
+        selectedList.clear()
     }
 
-    suspend fun delete(notiId: Long) {
-        withContext(Dispatchers.IO) {
-            repository.deleteMsgNotiListAndUpdateSummary(notiId, pkgName, summaryText)
-        }
-    }
-
-    suspend fun delete() {
-        withContext(Dispatchers.IO) {
-            repository.deleteMsgNotiListAndUpdateSummary(deleteList, pkgName, summaryText)
+    fun delete(list: List<Long>) {
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.deleteMsgNotiListAndUpdateSummary(list, pkgName, summaryText)
         }
     }
 
     suspend fun deleteAll() {
         withContext(Dispatchers.IO) {
             repository.deleteSummaryAndNoti(pkgName, summaryText)
+        }
+    }
+
+    suspend fun undoDelete() {
+        withContext(Dispatchers.IO) {
+            repository.updateNotiDeleted(deleteList, true)
+        }
+    }
+
+    suspend fun undoRestore() {
+        withContext(Dispatchers.IO) {
+            repository.updateNotiDeleted(deleteList, false)
         }
     }
 }

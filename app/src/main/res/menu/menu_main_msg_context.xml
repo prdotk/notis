@@ -5,8 +5,12 @@
         android:title="@string/main_menu_read_all" />
     <item
         android:id="@+id/main_menu_edit"
-        android:title="@string/main_menu_edit" />
+        android:title="@string/main_menu_select" />
     <item
         android:id="@+id/main_menu_delete_all"
         android:title="@string/main_menu_delete_all" />
+
+    <item
+        android:id="@+id/main_menu_settings"
+        android:title="@string/main_menu_settings" />
 </menu>

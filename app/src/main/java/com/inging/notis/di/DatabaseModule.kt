@@ -2,7 +2,7 @@ package com.inging.notis.di
 
 import android.content.Context
 import androidx.room.Room
-import com.inging.notis.data.room.NotisDatabase
+import com.inging.notis.data.room.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,6 +25,12 @@ object DatabaseModule {
         context,
         NotisDatabase::class.java,
         "nm_db"
+    ).addMigrations(
+        MIGRATION_1_2,
+        MIGRATION_2_3,
+        MIGRATION_3_4,
+        MIGRATION_4_5,
+        MIGRATION_5_6
     ).build()
 
     @Provides
@@ -35,4 +41,10 @@ object DatabaseModule {
 
     @Provides
     fun providePkgNotiInfo(db: NotisDatabase) = db.getPkgNotiInfoDao()
+
+    @Provides
+    fun provideSearchHistoryInfo(db: NotisDatabase) = db.getSearchHistoryDao()
+
+    @Provides
+    fun providePkgInfo(db: NotisDatabase) = db.getPkgInfoDao()
 }

@@ -6,6 +6,10 @@ import androidx.core.app.NotificationCompat.*
  * Created by annasu on 2021/05/03.
  */
 object Constants {
+
+    const val NOTIFICATION_ID = "notitool_notification_id"
+    const val CHANNEL_ID = "notitool_channel_id_3"
+
     val categoryMap = mapOf(
         CATEGORY_MESSAGE to "메시지",
         CATEGORY_SOCIAL to "소셜",

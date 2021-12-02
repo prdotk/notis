@@ -14,9 +14,14 @@
 
         <item name="iconColor">@color/white</item>
         <item name="fabColor">#444</item>
+        <item name="badgeStrokeColor">#121212</item>
+        <item name="bgPopupColor">#252525</item>
 
         <item name="bgEditText">#222</item>
         <item name="bubbleColor">#444</item>
+
+<!--        <item name="lineColor">#373737</item>-->
+        <item name="lineColor">#777</item>
     </style>
 
     <style name="checkBoxStyle" parent="BaseAppTheme">

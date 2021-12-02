@@ -6,26 +6,7 @@
         android:id="@+id/layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="5dp">
-
-        <TextView
-            android:id="@+id/date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="20dp"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp"
-            android:textColor="@color/text_dark"
-            android:textSize="13sp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="2021년 10월 20일 월요일"
-            tools:visibility="visible" />
+        android:paddingVertical="5dp">
 
         <CheckBox
             android:id="@+id/check"
@@ -50,6 +31,7 @@
             android:paddingHorizontal="12dp"
             android:paddingVertical="10dp"
             android:textColor="@color/black"
+            android:textColorLink="?textColor"
             android:textSize="14sp"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -57,7 +39,7 @@
             app:layout_constraintHorizontal_bias="1"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@id/timestamp"
-            app:layout_constraintTop_toBottomOf="@id/date"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="Google LLC is an" />
 
         <TextView

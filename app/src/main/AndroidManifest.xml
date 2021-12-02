@@ -8,12 +8,12 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
-<!--    <queries>-->
-<!--        <package android:name="com.samsung.android.app.smartcapture" />-->
-<!--    </queries>-->
+    <!--    <queries>-->
+    <!--        <package android:name="com.samsung.android.app.smartcapture" />-->
+    <!--    </queries>-->
 
     <application
-        android:name="com.inging.notis.NotisApplication"
+        android:name=".NotisApplication"
         android:allowBackup="false"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -28,8 +28,9 @@
             android:value="ca-app-pub-7364144021153614~4843146185" />
 
         <activity
-            android:name="com.inging.notis.ui.main.MainActivity"
-            android:exported="true">
+            android:name=".ui.main.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,21 +38,20 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.inging.notis.ui.summary.SummaryActivity" />
-
         <activity
-            android:name="com.inging.notis.ui.detail.msg.MsgDetailActivity"
+            android:name=".ui.detail.msg.MsgDetailActivity"
             android:windowSoftInputMode="stateHidden" />
 
         <activity
-            android:name="com.inging.notis.ui.detail.pkgnoti.PkgNotiActivity"
+            android:name=".ui.detail.pkgnoti.PkgNotiActivity"
             android:windowSoftInputMode="stateHidden" />
 
-        <activity android:name="com.inging.notis.ui.search.SearchActivity" />
+        <activity android:name=".ui.search.SearchActivity" />
+
+        <activity android:name=".ui.main.more.MoreActivity" />
 
         <service
-            android:name="com.inging.notis.service.NotisNotificationListenerService"
-            android:exported="false"
+            android:name=".service.NotisNotificationListenerService"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />

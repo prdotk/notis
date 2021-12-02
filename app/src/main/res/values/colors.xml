@@ -14,7 +14,7 @@
 
     <color name="app">#DC873D</color>
 
-    <color name="line">#373737</color>
+<!--    <color name="line">#373737</color>-->
 
     <color name="searchSelect">#ff00ff</color>
 </resources>

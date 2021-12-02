@@ -3,6 +3,7 @@ package com.inging.notis.ui.main
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationManagerCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -11,9 +12,8 @@ import com.inging.notis.R
 import com.inging.notis.constant.AdUnitId
 import com.inging.notis.databinding.MainActivityBinding
 import com.inging.notis.extension.loadBottomTabPosition
-import com.inging.notis.extension.permissionNotification
 import com.inging.notis.extension.saveBottomTabPosition
-import com.inging.notis.ui.main.more.MoreFragment
+import com.inging.notis.ui.dialog.PermissionDialog
 import com.inging.notis.ui.main.msg.MsgListFragment
 import com.inging.notis.ui.main.notification.NotiListFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,21 +27,20 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var messageFragment: MsgListFragment
     private lateinit var notificationFragment: NotiListFragment
-    private lateinit var moreFragment: MoreFragment
+//    private lateinit var moreFragment: MoreFragment
+
+    private var permissionDialog: PermissionDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.main_activity)
-
-        // 알림 허용 체크
-        permissionNotification()
 
         // 광고
         setupAds()
 
         messageFragment = MsgListFragment()
         notificationFragment = NotiListFragment()
-        moreFragment = MoreFragment()
+//        moreFragment = MoreFragment()
 
         // 앱 재기동 시 이미 생성된 프래그먼트 제거
         supportFragmentManager.fragments.forEach {
@@ -52,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction().run {
             add(R.id.container, messageFragment).show(messageFragment)
             add(R.id.container, notificationFragment).hide(notificationFragment)
-            add(R.id.container, moreFragment).hide(moreFragment)
+//            add(R.id.container, moreFragment).hide(moreFragment)
         }.commit()
 
         binding.bottomNavi.setOnNavigationItemSelectedListener {
@@ -61,22 +60,23 @@ class MainActivity : AppCompatActivity() {
                     supportFragmentManager.beginTransaction()
                         .show(messageFragment)
                         .hide(notificationFragment)
-                        .hide(moreFragment).commit()
+                        .commit()
                     saveBottomTabPosition(it.itemId)
                 }
                 R.id.tab_pkg -> {
                     supportFragmentManager.beginTransaction()
                         .hide(messageFragment)
                         .show(notificationFragment)
-                        .hide(moreFragment).commit()
+                        .commit()
                     saveBottomTabPosition(it.itemId)
                 }
-                R.id.tab_more -> {
-                    supportFragmentManager.beginTransaction()
-                        .hide(messageFragment)
-                        .hide(notificationFragment)
-                        .show(moreFragment).commit()
-                }
+//                R.id.tab_more -> {
+//                    supportFragmentManager.beginTransaction()
+//                        .hide(messageFragment)
+//                        .hide(notificationFragment)
+//                        .show(moreFragment).commit()
+//                    saveBottomTabPosition(it.itemId)
+//                }
             }
             true
         }
@@ -86,6 +86,29 @@ class MainActivity : AppCompatActivity() {
         // 하단 뱃지 처리
         mainViewModel.totalUnreadCount.observe(this) { total ->
             total?.let { updateBottomNaviBadge(it) }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // 알림 허용 체크
+        permissionNotificationAccess()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        permissionDialog?.dismiss()
+    }
+
+    private fun permissionNotificationAccess() {
+        // 알림 접근 허용 체크
+        if (!NotificationManagerCompat.getEnabledListenerPackages(this).any { enabledPackageName ->
+                enabledPackageName == packageName
+            }) {
+            permissionDialog = PermissionDialog()
+            permissionDialog?.show(supportFragmentManager, "")
         }
     }
 

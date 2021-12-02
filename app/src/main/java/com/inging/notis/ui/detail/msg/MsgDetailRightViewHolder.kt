@@ -13,7 +13,9 @@ import androidx.databinding.ObservableList
 import com.inging.notis.constant.ClickMode
 import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.databinding.LayoutMsgDetailRightItemBinding
-import com.inging.notis.extension.*
+import com.inging.notis.extension.checkSameMinute
+import com.inging.notis.extension.searchWordHighlight
+import com.inging.notis.extension.toTime
 
 /**
  * Created by annasu on 2021/04/26.
@@ -32,30 +34,21 @@ class MsgDetailRightViewHolder(
         }
 
     override fun bind(
+
         info: NotiInfo,
         prevInfo: NotiInfo?,
         nextInfo: NotiInfo?,
         word: String,
-        lastNotiId: Long,
         isEditMode: ObservableBoolean,
         deletedList: ObservableArrayList<Long>,
-        listener: (Int, NotiInfo, Boolean) -> Unit
+        listener: (Int, NotiInfo, Boolean, Int) -> Unit,
+        position: Int
     ) {
         notiId = info.notiId
 
         binding.run {
             val isSamePrevMin = info.timestamp.checkSameMinute(prevInfo?.timestamp)
                     && info.title == prevInfo?.title && info.senderType == prevInfo.senderType
-            val isDiffDay = info.timestamp.checkDiffDay(nextInfo?.timestamp)
-
-            if ((nextInfo != null && isDiffDay) ||
-                (nextInfo == null && info.notiId == lastNotiId)
-            ) {
-                date.visibility = View.VISIBLE
-                date.text = info.timestamp.toDate(root.context)
-            } else {
-                date.visibility = View.GONE
-            }
 
             // 노티 시간
             timestamp.text = info.timestamp.toTime()
@@ -77,17 +70,22 @@ class MsgDetailRightViewHolder(
             check.setOnClickListener {
                 (it as? CheckBox)?.let { check ->
                     info.isChecked = check.isChecked
-                    listener(ClickMode.LONG, info, check.isChecked)
+                    listener(ClickMode.CHECK, info, check.isChecked, position)
                 }
             }
 
             layout.setOnClickListener {
-                check.performClick()
+                if (isEditMode.get()) {
+                    check.performClick()
+                }
             }
 
             layout.setOnLongClickListener {
-                check.performClick()
-                listener(ClickMode.LONG, info, false)
+                if (isEditMode.get()) {
+                    check.performClick()
+                } else {
+                    listener(ClickMode.LONG, info, false, position)
+                }
                 true
             }
 

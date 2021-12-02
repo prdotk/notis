@@ -8,7 +8,11 @@
 
     <attr name="iconColor" format="color" />
     <attr name="fabColor" format="color" />
+    <attr name="badgeStrokeColor" format="color" />
+    <attr name="bgPopupColor" format="color"/>
 
     <attr name="bgEditText" format="color" />
     <attr name="bubbleColor" format="color" />
+
+    <attr name="lineColor" format="color" />
 </resources>

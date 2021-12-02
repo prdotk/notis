@@ -67,8 +67,8 @@
             android:layout_marginStart="30dp"
             android:contentDescription="@null"
             android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="@id/largeIcon"
+            app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/ic_app_default"
             tools:visibility="visible" />
 
@@ -117,6 +117,7 @@
             android:paddingHorizontal="12dp"
             android:paddingVertical="10dp"
             android:textColor="?textColor"
+            android:textColorLink="?textColor"
             android:textSize="14sp"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"

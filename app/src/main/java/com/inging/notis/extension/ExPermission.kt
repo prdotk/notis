@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Process
 import android.provider.Settings
-import androidx.core.app.NotificationManagerCompat
 import com.inging.notis.ui.main.MainActivity
 
 
@@ -94,11 +93,6 @@ fun Context.permissionManageOverlay(): Boolean {
  * 알림 접근 허용
  */
 fun Context.permissionNotification() {
-    // 알림 접근 허용 체크
-    if (!NotificationManagerCompat.getEnabledListenerPackages(this).any { enabledPackageName ->
-            enabledPackageName == packageName
-        }) {
-        // 알림 접근 설정 페이지 이동
-        startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
-    }
+    // 알림 접근 설정 페이지 이동
+    startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
 }

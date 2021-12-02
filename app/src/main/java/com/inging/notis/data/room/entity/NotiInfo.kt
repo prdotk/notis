@@ -54,6 +54,8 @@ data class NotiInfo(
 
     // 안읽은 노티 구분, 메시지 아닌 노티만 사용
     // true: 안읽음, false: 읽음
-    var unread: Boolean = true
+    var unread: Boolean = true,
 
+    // undo 구현위해 사용
+    var deleted: Boolean = false
 ) : IgnoreInfo()

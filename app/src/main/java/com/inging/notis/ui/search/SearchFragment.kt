@@ -11,11 +11,17 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import com.inging.notis.R
 import com.inging.notis.constant.ClickMode
+import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.databinding.SearchFragmentBinding
 import com.inging.notis.extension.dp2Pixel
+import com.inging.notis.extension.showBottomSheetDialog
 import com.inging.notis.ui.custom.LinearLayoutItemDecoration
 import com.inging.notis.ui.detail.msg.MsgDetailActivity
 import com.inging.notis.ui.detail.pkgnoti.PkgNotiActivity
@@ -32,29 +38,47 @@ class SearchFragment : Fragment() {
 
     private lateinit var binding: SearchFragmentBinding
 
+    private var oldJob: Job? = null
+
+    private var snack: Snackbar? = null
+
     private val _adapter: SearchAdapter by lazy {
         SearchAdapter { mode, info ->
             when (mode) {
-                ClickMode.MSG -> {
-                    val intent = Intent(context, MsgDetailActivity::class.java)
-                    intent.putExtra("PKG_NAME", info.pkgName)
-                    intent.putExtra("SUMMARY_TEXT", info.summaryText)
-                    intent.putExtra("WORD", viewModel.word)
-                    intent.putExtra("NOTI_ID", info.notiId)
-                    startActivity(intent)
+                ClickMode.MSG -> Intent(context, MsgDetailActivity::class.java).run {
+                    putExtra("PKG_NAME", info.pkgName)
+                    putExtra("SUMMARY_TEXT", info.summaryText)
+                    putExtra("WORD", viewModel.word)
+                    putExtra("NOTI_ID", info.notiId)
+                    startActivity(this)
                 }
-                ClickMode.NOTI -> {
-                    val intent = Intent(context, PkgNotiActivity::class.java)
-                    intent.putExtra("PKG_NAME", info.pkgName)
-                    intent.putExtra("WORD", viewModel.word)
-                    intent.putExtra("NOTI_ID", info.notiId)
-                    startActivity(intent)
+                ClickMode.NOTI -> Intent(context, PkgNotiActivity::class.java).run {
+                    putExtra("PKG_NAME", info.pkgName)
+                    putExtra("WORD", viewModel.word)
+                    putExtra("NOTI_ID", info.notiId)
+                    startActivity(this)
+                }
+                ClickMode.LONG -> requireContext().showBottomSheetDialog(info) {
+                    undoDelete(info)
                 }
             }
         }
     }
 
-    private var oldJob: Job? = null
+    private val _itemTouchHelper = ItemTouchHelper(object :
+        ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean = false
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            _adapter.peek(viewHolder.bindingAdapterPosition)?.let {
+                undoDelete(it)
+            }
+        }
+    })
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,8 +97,8 @@ class SearchFragment : Fragment() {
                 )
             )
         }
-//        (binding.recycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-//        binding.recycler.itemAnimator = NoAnimationItemAnimator()
+
+        _itemTouchHelper.attachToRecyclerView(binding.recycler)
 
         return binding.root
     }
@@ -110,6 +134,40 @@ class SearchFragment : Fragment() {
         lifecycleScope.launch {
             delay(100)
             _adapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun undoDelete(info: NotiInfo) {
+        lifecycleScope.launch {
+            snack?.dismiss()
+
+            viewModel.deleteInfo = info
+            viewModel.undoDelete()
+
+            val message = getString(R.string.snack_deleted2)
+            snack = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).run {
+                setAction(getString(R.string.snack_undo)) {
+                    lifecycleScope.launch {
+                        viewModel.undoRestore()
+                    }
+                }
+                addCallback(object : Snackbar.Callback() {
+                    val info = viewModel.deleteInfo.copy()
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        when (event) {
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION -> {
+                            }
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_CONSECUTIVE,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_MANUAL,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_SWIPE,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_TIMEOUT -> {
+                                viewModel.delete(this.info)
+                            }
+                        }
+                    }
+                })
+            }
+            snack?.show()
         }
     }
 }

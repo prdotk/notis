@@ -14,9 +14,9 @@
         android:title="@string/tab_notifications"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/tab_more"
-        android:icon="@drawable/icon_tab_more_selector"
-        android:title="@string/tab_more"
-        app:showAsAction="ifRoom" />
+<!--    <item-->
+<!--        android:id="@+id/tab_more"-->
+<!--        android:icon="@drawable/icon_tab_more_selector"-->
+<!--        android:title="@string/tab_more"-->
+<!--        app:showAsAction="ifRoom" />-->
 </menu>

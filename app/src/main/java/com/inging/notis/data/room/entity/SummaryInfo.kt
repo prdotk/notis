@@ -17,4 +17,7 @@ data class SummaryInfo(
     @Embedded
     var recentNotiInfo: NotiInfo,
 
+    // undo 구현위해 사용
+    var summaryDeleted: Boolean = false
+
 ) : IgnoreInfo()

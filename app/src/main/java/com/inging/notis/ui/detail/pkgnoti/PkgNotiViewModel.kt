@@ -10,7 +10,9 @@ import androidx.paging.cachedIn
 import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.repository.NotiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -30,12 +32,13 @@ class PkgNotiViewModel @Inject constructor(
     fun pkgNotiList(pkgName: String) = Pager(
         config = PagingConfig(pageSize = 20)
     ) {
-        repository.getNotiList(pkgName)
+        repository.getNotiListNotMsg(pkgName)
     }.flow
         .cachedIn(viewModelScope)
 
     // 삭제 목록
-    val deleteList = ObservableArrayList<NotiInfo>()
+    val selectedList = ObservableArrayList<NotiInfo>()
+    var deleteList = emptyList<NotiInfo>()
 
 //    fun selectTotalNoti() {
 //        viewModelScope.launch(Dispatchers.IO) {
@@ -56,18 +59,32 @@ class PkgNotiViewModel @Inject constructor(
     }
 
     fun clearDeleteList() {
-        deleteList.clear()
+        selectedList.clear()
     }
 
-    suspend fun delete() {
-        withContext(Dispatchers.IO) {
-            repository.deleteNotiListAndUpdatePkgNoti(deleteList)
+    fun delete(list: List<NotiInfo>) {
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.deleteNotiListAndUpdatePkgNoti(list)
         }
     }
 
     suspend fun deleteAll() {
         withContext(Dispatchers.IO) {
             repository.deletePkgNotiAndNotiInfo(pkgName)
+        }
+    }
+
+    suspend fun undoDelete() {
+        withContext(Dispatchers.IO) {
+            val idList = deleteList.map { it.notiId }
+            repository.updateNotiDeleted(idList, true)
+        }
+    }
+
+    suspend fun undoRestore() {
+        withContext(Dispatchers.IO) {
+            val idList = deleteList.map { it.notiId }
+            repository.updateNotiDeleted(idList, false)
         }
     }
 }

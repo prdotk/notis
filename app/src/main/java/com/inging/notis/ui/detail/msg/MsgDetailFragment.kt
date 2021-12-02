@@ -8,7 +8,6 @@ import android.os.ResultReceiver
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
@@ -18,6 +17,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import com.inging.notis.R
 import com.inging.notis.constant.ClickMode
 import com.inging.notis.constant.ServiceCommandType.CHECK_REPLY_POSSIBLE
@@ -42,6 +43,8 @@ class MsgDetailFragment : Fragment() {
     private var firstLoad = true
 
     private var isPossibleSend = false
+
+    private var snack: Snackbar? = null
 
     private val resultReceiver = object : ResultReceiver(Handler(Looper.getMainLooper())) {
         override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
@@ -69,52 +72,62 @@ class MsgDetailFragment : Fragment() {
         lifecycleScope.launch {
             adapter = MsgDetailAdapter(
                 viewModel.word,
-                viewModel.getLastNotiId(),
                 viewModel.isEditMode,
-                viewModel.deleteList
-            ) { mode, info, isChecked ->
+                viewModel.selectedList
+            ) { mode, info, isChecked, position ->
                 when (mode) {
                     ClickMode.CHECK -> // 체크 버튼 클릭 시 액션
-                        if (isChecked) viewModel.deleteList.add(info.notiId)
-                        else viewModel.deleteList.remove(info.notiId)
+                        if (isChecked) viewModel.selectedList.add(info.notiId)
+                        else viewModel.selectedList.remove(info.notiId)
                     ClickMode.LONG -> //viewModel.isEditMode.set(true)
                         requireContext().showBottomSheetDialog(info) {
-                            lifecycleScope.launch {
-                                viewModel.delete(info.notiId)
-                                Toast.makeText(
-                                    requireContext(),
-                                    R.string.snack_has_been_deleted,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
+                            viewModel.selectedList.add(info.notiId)
+                            undoDelete(position)
+//                        viewModel.isEditMode.set(true)
+//                        viewModel.selectedList.add(
+//                            SimpleSummaryData(info.pkgName, info.summaryText)
+//                        )
                         }
+//                        requireContext().showBottomSheetDialog(info) {
+//                            lifecycleScope.launch {
+//                                viewModel.realDelete(info.notiId)
+//                                Toast.makeText(
+//                                    requireContext(),
+//                                    R.string.snack_deleted,
+//                                    Toast.LENGTH_LONG
+//                                ).show()
+//                                delay(300)
+//                                adapter.notifyItemChanged(position - 1)
+//                            }
+//                        }
                 }
             }
+
+            binding.recycler.itemAnimator = null
             binding.recycler.adapter = adapter
 
             viewModel.notiInfoList.collectLatest {
                 adapter.submitData(lifecycle, it)
                 checkReplyPossible()
                 lifecycleScope.launch {
-                    delay(50)
+                    delay(1000)
                     if (firstLoad) {
                         firstLoad = false
                         binding.recycler.scrollToPosition(viewModel.findPosition())
                     } else {
+//                        adapter.notifyItemChanged(1)
+                        adapter.notifyItemRangeChanged(0, 2)
                         val firstVisible = (binding.recycler.layoutManager as LinearLayoutManager)
                             .findFirstVisibleItemPosition()
                         if (firstVisible <= 1) {
-                            binding.recycler.scrollToPosition(0)
+                            binding.recycler.smoothScrollToPosition(0)
                         }
-                        adapter.notifyItemChanged(1)
                     }
                 }
             }
         }
 
-        lifecycleScope.launch {
-            viewModel.readUpdateSummary()
-        }
+        viewModel.readUpdateSummary()
 
         // 애니메이션 제거
 //        (binding.recycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
@@ -148,9 +161,7 @@ class MsgDetailFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        lifecycleScope.launch {
-            viewModel.readUpdateSummary()
-        }
+        viewModel.readUpdateSummary()
     }
 
     // 답장 보낼 수 있는지 확인
@@ -192,8 +203,68 @@ class MsgDetailFragment : Fragment() {
         val success = resultData.getBoolean("RESULT")
         val messageText = resultData.getString("MESSAGE_TEXT") ?: ""
 
+        binding.bottomLayout.isVisible = success
+
         if (success) {
             viewModel.saveMessage(messageText)
+        }
+    }
+
+    fun undoDelete(position: Int?) {
+        lifecycleScope.launch {
+            snack?.dismiss()
+
+            viewModel.deleteList = viewModel.selectedList.toList()
+            viewModel.undoDelete()
+
+            finishEditMode()
+
+            delay(150)
+            position?.let {
+                adapter.notifyItemRangeChanged(position - 1, 2)
+            } ?: run {
+                adapter.notifyDataSetChanged()
+            }
+
+            val message = "${viewModel.deleteList.size} ${getString(R.string.snack_deleted)}"
+            snack = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).run {
+                setAction(getString(R.string.snack_undo)) {
+                    lifecycleScope.launch {
+                        viewModel.undoRestore()
+                        viewModel.selectedList.clear()
+
+                        delay(150)
+                        position?.let {
+                            adapter.notifyItemRangeChanged(position - 1, 3)
+                        } ?: run {
+                            adapter.notifyDataSetChanged()
+                        }
+                    }
+                }
+                addCallback(object : Snackbar.Callback() {
+                    val list = viewModel.deleteList.toList()
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        when (event) {
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION -> {
+                            }
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_CONSECUTIVE,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_MANUAL,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_SWIPE,
+                            BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_TIMEOUT -> {
+                                viewModel.delete(list)
+                            }
+                        }
+                    }
+                })
+            }
+            snack?.show()
+        }
+    }
+
+    fun finishEditMode() {
+        lifecycleScope.launch {
+            viewModel.clearDeleteList()
+            viewModel.isEditMode.set(false)
         }
     }
 }

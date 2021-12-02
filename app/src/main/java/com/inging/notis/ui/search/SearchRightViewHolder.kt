@@ -1,5 +1,6 @@
 package com.inging.notis.ui.search
 
+import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,38 +50,38 @@ class SearchRightViewHolder(
 //                title.visibility = View.GONE
 //            } else {
 //                iconLayout.visibility = View.VISIBLE
-                summary.visibility = View.VISIBLE
-                title.visibility = View.VISIBLE
+            summary.visibility = View.VISIBLE
+            title.visibility = View.VISIBLE
 
-                // 앱 아이콘
-                CoroutineScope(Dispatchers.Main).launch {
-                    val bitmap = info.largeIcon.loadBitmap(root.context)
-                    if (bitmap != null) {
-                        icon.visibility = View.INVISIBLE
-                        largeIcon.visibility = View.VISIBLE
-                        largeIcon.setImageBitmap(bitmap)
-                        smallIcon.visibility = View.VISIBLE
-                        smallIcon.setImageDrawable(root.context.getAppIcon(info.pkgName))
-                    } else {
-                        icon.visibility = View.VISIBLE
-                        icon.setImageDrawable(root.context.getAppIcon(info.pkgName))
-                        largeIcon.visibility = View.GONE
-                        smallIcon.visibility = View.INVISIBLE
-                    }
-                }
-
-                // 노티 타이틀
-                title.text = info.title
-                title.searchWordHighlight(word)
-
-                // 노티 서머리
-                if (info.summaryText.isEmpty() || info.title == info.summaryText) {
-                    summary.visibility = View.GONE
+            // 앱 아이콘
+            CoroutineScope(Dispatchers.Main).launch {
+                val bitmap = info.largeIcon.loadBitmap(root.context)
+                if (bitmap != null) {
+                    icon.visibility = View.INVISIBLE
+                    largeIcon.visibility = View.VISIBLE
+                    largeIcon.setImageBitmap(bitmap)
+                    smallIcon.visibility = View.VISIBLE
+                    smallIcon.setImageDrawable(root.context.getAppIcon(info.pkgName))
                 } else {
-                    summary.visibility = View.VISIBLE
-                    summary.text = info.summaryText
-                    summary.searchWordHighlight(word)
+                    icon.visibility = View.VISIBLE
+                    icon.setImageDrawable(root.context.getAppIcon(info.pkgName))
+                    largeIcon.visibility = View.GONE
+                    smallIcon.visibility = View.INVISIBLE
                 }
+            }
+
+            // 노티 타이틀
+            title.text = info.title
+            title.searchWordHighlight(word)
+
+            // 노티 서머리
+            if (info.summaryText != info.title && info.summaryText != info.text) {
+                summary.visibility = View.VISIBLE
+                summary.text = info.summaryText
+                summary.searchWordHighlight(word)
+            } else {
+                summary.visibility = View.GONE
+            }
 //            }
 
             // 노티 시간
@@ -88,15 +89,22 @@ class SearchRightViewHolder(
 //            if (isSameNextMin) {
 //                timestamp.visibility = View.INVISIBLE
 //            } else {
-                timestamp.visibility = View.VISIBLE
+            timestamp.visibility = View.VISIBLE
 //            }
 
             // 노티 내용
+            text.visibility = View.VISIBLE
+            text.autoLinkMask = Linkify.ALL
             text.text = info.text
             text.searchWordHighlight(word)
             text.setOnClickListener {
                 listener(ClickMode.MSG, info)
             }
+            text.setOnLongClickListener {
+                listener(ClickMode.LONG, info)
+                true
+            }
+
 //            Linkify.addLinks(text, Linkify.ALL)
         }
     }

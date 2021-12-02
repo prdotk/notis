@@ -21,5 +21,8 @@ data class PkgNotiInfo(
     var notiCount: Long,
 
     // 안읽은 메시지 갯수
-    var unreadCnt: Int
+    var unreadCnt: Int,
+
+    // undo 구현위해 사용
+    var pkgNotiDeleted: Boolean = false
 )

@@ -10,24 +10,6 @@
         android:paddingEnd="7dp"
         android:paddingBottom="5dp">
 
-        <TextView
-            android:id="@+id/date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="17dp"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp"
-            android:textColor="@color/text_dark"
-            android:textSize="13sp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="2021년 10월 20일 월요일"
-            tools:visibility="visible" />
-
         <CheckBox
             android:id="@+id/check"
             android:layout_width="30dp"
@@ -78,7 +60,7 @@
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="@id/text"
-            app:layout_constraintTop_toBottomOf="@id/date"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="Google" />
 
         <TextView
@@ -90,7 +72,8 @@
             android:includeFontPadding="false"
             android:paddingHorizontal="12dp"
             android:paddingVertical="10dp"
-            android:textColor="?attr/textColor"
+            android:textColor="?textColor"
+            android:textColorLink="?textColor"
             android:textSize="14sp"
             android:visibility="invisible"
             app:layout_constrainedWidth="true"
@@ -107,26 +90,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:adjustViewBounds="true"
             android:contentDescription="@null"
             android:scaleType="fitStart"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/title"
             app:layout_constraintTop_toBottomOf="@id/text"
-            tools:src="@drawable/ic_app_default"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/bgImage"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:contentDescription="@null"
-            android:scaleType="fitStart"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/title"
-            app:layout_constraintTop_toBottomOf="@id/picture"
             tools:src="@drawable/ic_app_default"
             tools:visibility="visible" />
 

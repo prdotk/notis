@@ -14,14 +14,14 @@ import com.inging.notis.data.room.entity.NotiInfo
  */
 class MsgDetailAdapter(
     private val word: String,
-    private val lastNotiId: Long,
     private val isEditMode: ObservableBoolean,
     private val deletedList: ObservableArrayList<Long>,
-    private val listener: (Int, NotiInfo, Boolean) -> Unit
+    private val listener: (Int, NotiInfo, Boolean, Int) -> Unit
 ) : PagingDataAdapter<NotiInfo, RecyclerView.ViewHolder>(DiffUtilCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
+            NotiViewType.SEPARATOR -> MsgDetailSeparatorViewHolder.getInstance(parent)
             NotiViewType.RIGHT -> MsgDetailRightViewHolder.getInstance(parent)
             else -> MsgDetailLeftViewHolder.getInstance(parent)
         }
@@ -41,17 +41,13 @@ class MsgDetailAdapter(
             nextItem = getItem(position + 1)
         }
         getItem(position)?.let {
-            if (holder is MsgDetailViewHolder) {
-                holder.bind(
-                    it,
-                    prevItem,
-                    nextItem,
-                    word,
-                    lastNotiId,
-                    isEditMode,
-                    deletedList,
-                    listener
+            when (holder) {
+                is MsgDetailViewHolder -> holder.bind(
+                    it, prevItem, nextItem, word,
+                    isEditMode, deletedList, listener,
+                    position
                 )
+                is MsgDetailSeparatorViewHolder -> holder.bind(it)
             }
         }
     }

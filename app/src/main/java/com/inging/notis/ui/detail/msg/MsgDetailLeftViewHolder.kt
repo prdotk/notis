@@ -35,10 +35,10 @@ class MsgDetailLeftViewHolder(
         prevInfo: NotiInfo?,
         nextInfo: NotiInfo?,
         word: String,
-        lastNotiId: Long,
         isEditMode: ObservableBoolean,
         deletedList: ObservableArrayList<Long>,
-        listener: (Int, NotiInfo, Boolean) -> Unit
+        listener: (Int, NotiInfo, Boolean, Int) -> Unit,
+        position: Int
     ) {
         notiId = info.notiId
         _text = info.text
@@ -48,16 +48,6 @@ class MsgDetailLeftViewHolder(
                     && info.title == prevInfo?.title && info.senderType == prevInfo.senderType
             val isSameNextMin = info.timestamp.checkSameMinute(nextInfo?.timestamp)
                     && info.title == nextInfo?.title && info.senderType == nextInfo.senderType
-            val isDiffDay = info.timestamp.checkDiffDay(nextInfo?.timestamp)
-
-            if ((nextInfo != null && isDiffDay) ||
-                (nextInfo == null && info.notiId == lastNotiId)
-            ) {
-                date.visibility = View.VISIBLE
-                date.text = info.timestamp.toDate(root.context)
-            } else {
-                date.visibility = View.GONE
-            }
 
             if (isSameNextMin) {
                 icon.visibility = View.INVISIBLE
@@ -95,15 +85,6 @@ class MsgDetailLeftViewHolder(
                         picture.setImageBitmap(bitmap)
                     }
                 }
-
-                bgImage.visibility = View.GONE
-                if (info.bgImage.isNotEmpty()) {
-                    val bitmap = info.bgImage.loadBitmap(root.context)
-                    if (bitmap != null) {
-                        bgImage.visibility = View.VISIBLE
-                        bgImage.setImageBitmap(bitmap)
-                    }
-                }
             }
 
             // 노티 시간
@@ -124,8 +105,11 @@ class MsgDetailLeftViewHolder(
 //            Linkify.addLinks(text, Linkify.ALL)
 
             text.setOnLongClickListener {
-                check.performClick()
-                listener(ClickMode.LONG, info, false)
+                if (isEditMode.get()) {
+                    check.performClick()
+                } else {
+                    listener(ClickMode.LONG, info, false, position)
+                }
                 true
             }
 
@@ -142,7 +126,7 @@ class MsgDetailLeftViewHolder(
             check.setOnClickListener {
                 (it as? CheckBox)?.let { check ->
                     info.isChecked = check.isChecked
-                    listener(ClickMode.CHECK, info, check.isChecked)
+                    listener(ClickMode.CHECK, info, check.isChecked, position)
                 }
             }
 
@@ -153,8 +137,11 @@ class MsgDetailLeftViewHolder(
             }
 
             layout.setOnLongClickListener {
-                check.performClick()
-                listener(ClickMode.LONG, info, false)
+                if (isEditMode.get()) {
+                    check.performClick()
+                } else {
+                    listener(ClickMode.LONG, info, false, position)
+                }
                 true
             }
 

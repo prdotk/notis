@@ -108,7 +108,7 @@
             android:paddingTop="65dp"
             android:scrollbars="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/layout_category_item" />
+            tools:listitem="@layout/layout_msg_list_item" />
 
         <!--        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
         <!--            android:id="@+id/fabRead"-->

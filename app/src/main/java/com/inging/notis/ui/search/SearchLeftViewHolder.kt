@@ -1,5 +1,6 @@
 package com.inging.notis.ui.search
 
+import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -74,12 +75,12 @@ class SearchLeftViewHolder(
                 title.searchWordHighlight(word)
 
                 // 노티 서머리
-                if (info.summaryText.isEmpty() || info.title == info.summaryText) {
-                    summary.visibility = View.GONE
-                } else {
+                if (info.title != info.summaryText && info.summaryText != info.text) {
                     summary.visibility = View.VISIBLE
                     summary.text = info.summaryText
                     summary.searchWordHighlight(word)
+                } else {
+                    summary.visibility = View.GONE
                 }
 //            }
 
@@ -92,11 +93,19 @@ class SearchLeftViewHolder(
 //            }
 
             // 노티 내용
+            text.visibility = View.VISIBLE
+            text.autoLinkMask = Linkify.ALL
+//            text.setLinkTextColor(Color.WHITE)
             text.text = info.text
             text.searchWordHighlight(word)
             text.setOnClickListener {
                 listener(ClickMode.MSG, info)
             }
+            text.setOnLongClickListener {
+                listener(ClickMode.LONG, info)
+                true
+            }
+
 //            Linkify.addLinks(text, Linkify.ALL)
         }
     }

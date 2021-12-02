@@ -56,9 +56,14 @@ class NotiListPkgViewHolder(
             appName.text = root.context.getAppName(info.recentNotiInfo.pkgName)
 
             // 타이틀
-            title.text = info.recentNotiInfo.title
+            if (info.recentNotiInfo.title.isNotEmpty()) {
+                title.visibility = View.VISIBLE
+                title.text = info.recentNotiInfo.title
+            } else {
+                title.visibility = View.GONE
+            }
 
-            if (info.recentNotiInfo.title != info.recentNotiInfo.summaryText) {
+            if (info.recentNotiInfo.title != info.recentNotiInfo.summaryText && info.recentNotiInfo.summaryText != info.recentNotiInfo.text) {
                 summary.visibility = View.VISIBLE
                 summary.text = info.recentNotiInfo.summaryText
             } else {
@@ -92,8 +97,11 @@ class NotiListPkgViewHolder(
             }
 
             layout.setOnLongClickListener {
-                check.performClick()
-                listener(ClickMode.LONG, info, false)
+                if (isEditMode.get()) {
+                    check.performClick()
+                } else {
+                    listener(ClickMode.LONG, info, false)
+                }
                 true
             }
 

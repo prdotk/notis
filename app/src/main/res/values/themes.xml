@@ -10,9 +10,9 @@
         <item name="colorSecondaryVariant">@color/white</item>
         <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
-<!--        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>-->
-<!--        <item name="android:statusBarColor" tools:targetApi="l">?appStatusBarColor</item>-->
-<!--        <item name="android:windowLightStatusBar">true</item>-->
+        <!--        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>-->
+        <!--        <item name="android:statusBarColor" tools:targetApi="l">?appStatusBarColor</item>-->
+        <!--        <item name="android:windowLightStatusBar">true</item>-->
         <!-- Customize your theme here. -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -33,9 +33,19 @@
         <item name="android:disabledAlpha">?android:attr/disabledAlpha</item>
     </style>
 
-    <style name="toggleButton"  parent="BaseAppTheme">
+    <style name="toggleButton" parent="BaseAppTheme">
         <item name="android:buttonStyleToggle">@style/Widget.Button.Toggle</item>
         <item name="android:textOn"></item>
         <item name="android:textOff"></item>
+    </style>
+
+    <style name="Switch" parent="Theme.MaterialComponents.DayNight">
+        <!-- active thumb & track color (30% transparency) -->
+        <!--        <item name="colorControlActivated">#46bdbf</item>-->
+        <item name="colorControlActivated">@color/app</item>
+        <!-- inactive thumb color -->
+        <!--        <item name="colorSwitchThumbNormal">#f1f1f1</item>-->
+        <!-- inactive track color (30% transparency) -->
+        <!--        <item name="android:colorForeground">#42221f1f</item>-->
     </style>
 </resources>

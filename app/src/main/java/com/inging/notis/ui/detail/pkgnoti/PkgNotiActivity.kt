@@ -26,7 +26,7 @@ class PkgNotiActivity : AppCompatActivity() {
 
     private lateinit var binding: PkgNotiActivityBinding
 
-    private lateinit var msgDetailFragment: PkgNotiFragment
+    private lateinit var fragment: PkgNotiFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +36,7 @@ class PkgNotiActivity : AppCompatActivity() {
         viewModel.word = intent?.getStringExtra("WORD") ?: ""
         viewModel.notiId = intent?.getLongExtra("NOTI_ID", -1) ?: -1
 
-        msgDetailFragment = PkgNotiFragment()
+        fragment = PkgNotiFragment()
 
         // 앱 재기동 시 이미 생성된 프래그먼트 제거
         supportFragmentManager.fragments.forEach {
@@ -45,7 +45,7 @@ class PkgNotiActivity : AppCompatActivity() {
         }
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.container, msgDetailFragment)
+            .replace(R.id.container, fragment)
             .commitNow()
 
         // 패키지 이름
@@ -63,12 +63,12 @@ class PkgNotiActivity : AppCompatActivity() {
 
         // 취소
         binding.cancel.setOnClickListener {
-            finishEditMode()
+            fragment.finishEditMode()
         }
 
         // 삭제 버튼
         binding.delete.setOnClickListener {
-            deleteMessage()
+            fragment.undoDelete()
         }
 
         viewModel.isEditMode.addOnPropertyChangedCallback(
@@ -79,6 +79,8 @@ class PkgNotiActivity : AppCompatActivity() {
                         binding.menu.isInvisible = isEditMode
                         binding.cancel.isInvisible = !isEditMode
                         binding.delete.isInvisible = !isEditMode
+
+                        fragment.setSwipe(!isEditMode)
                     }
                 }
             })
@@ -109,35 +111,16 @@ class PkgNotiActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         if (viewModel.isEditMode.get()) {
-            finishEditMode()
+            fragment.finishEditMode()
         } else {
             super.onBackPressed()
         }
     }
 
-    private fun finishEditMode() {
-        lifecycleScope.launch {
-            viewModel.clearDeleteList()
-            viewModel.isEditMode.set(false)
-        }
-    }
-
-    private fun deleteMessage() {
-        lifecycleScope.launch {
-            viewModel.delete()
-            finishEditMode()
-            Snackbar.make(
-                binding.root,
-                R.string.snack_selected_was_deleted,
-                Snackbar.LENGTH_LONG
-            ).show()
-        }
-    }
-
     private fun deleteAll() {
         AlertDialog.Builder(this)
-            .setMessage(R.string.alert_delete_all)
-            .setPositiveButton(R.string.alert_positive) { _, _ ->
+            .setMessage(R.string.delete_all_notifications)
+            .setPositiveButton(R.string.dialog_ok) { _, _ ->
                 lifecycleScope.launch {
                     viewModel.deleteAll()
                     Snackbar.make(
@@ -147,7 +130,7 @@ class PkgNotiActivity : AppCompatActivity() {
                     ).show()
                     finish()
                 }
-            }.setNegativeButton(R.string.alert_negative) { _, _ ->
+            }.setNegativeButton(R.string.dialog_cancel) { _, _ ->
             }.create().show()
     }
 }

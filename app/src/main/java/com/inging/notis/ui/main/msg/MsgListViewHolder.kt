@@ -14,7 +14,7 @@ import com.inging.notis.constant.ClickMode
 import com.inging.notis.data.model.SimpleSummaryData
 import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.data.room.entity.SummaryInfo
-import com.inging.notis.databinding.LayoutCategoryItemBinding
+import com.inging.notis.databinding.LayoutMsgListItemBinding
 import com.inging.notis.extension.getAppIcon
 import com.inging.notis.extension.loadBitmap
 import com.inging.notis.extension.toDateOrTime
@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
  * Created by annasu on 2021/04/26.
  */
 class MsgListViewHolder(
-    private val binding: LayoutCategoryItemBinding
+    private val binding: LayoutMsgListItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private var pkgName = ""
@@ -50,13 +50,14 @@ class MsgListViewHolder(
                     largeIcon.visibility = View.VISIBLE
                     largeIcon.setImageBitmap(bitmap)
                     smallIcon.visibility = View.VISIBLE
-                    smallIcon.setImageDrawable(root.context.getAppIcon(info.recentNotiInfo.pkgName))
+//                    smallIcon.setImageDrawable(root.context.getAppIcon(info.recentNotiInfo.pkgName))
                 } else {
                     icon.visibility = View.VISIBLE
                     icon.setImageDrawable(root.context.getAppIcon(info.recentNotiInfo.pkgName))
                     largeIcon.visibility = View.GONE
-                    smallIcon.visibility = View.GONE
+//                    smallIcon.visibility = View.GONE
                 }
+                smallIcon.setImageDrawable(root.context.getAppIcon(info.recentNotiInfo.pkgName))
             }
             // 타이틀
             title.text = info.recentNotiInfo.summaryText
@@ -83,11 +84,7 @@ class MsgListViewHolder(
             check.setOnClickListener {
                 (it as? CheckBox)?.let { check ->
                     info.isChecked = check.isChecked
-                    listener(
-                        ClickMode.CHECK,
-                        info.recentNotiInfo,
-                        check.isChecked
-                    )
+                    listener(ClickMode.CHECK, info.recentNotiInfo, check.isChecked)
                 }
             }
 
@@ -95,21 +92,16 @@ class MsgListViewHolder(
                 if (isEditMode.get()) {
                     check.performClick()
                 } else {
-                    listener(
-                        ClickMode.DEFAULT,
-                        info.recentNotiInfo,
-                        false
-                    )
+                    listener(ClickMode.DEFAULT, info.recentNotiInfo, false)
                 }
             }
 
             layout.setOnLongClickListener {
-                check.performClick()
-                listener(
-                    ClickMode.LONG,
-                    info.recentNotiInfo,
-                    false
-                )
+                if (isEditMode.get()) {
+                    check.performClick()
+                } else {
+                    listener(ClickMode.LONG, info.recentNotiInfo, false)
+                }
                 true
             }
 
@@ -179,7 +171,7 @@ class MsgListViewHolder(
 
     companion object {
         fun getInstance(parent: ViewGroup): MsgListViewHolder {
-            val binding = LayoutCategoryItemBinding.inflate(
+            val binding = LayoutMsgListItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
             )
             return MsgListViewHolder(binding)

@@ -118,6 +118,7 @@
             android:paddingHorizontal="12dp"
             android:paddingVertical="10dp"
             android:textColor="?textColor"
+            android:textColorLink="?textColor"
             android:textSize="14sp"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"

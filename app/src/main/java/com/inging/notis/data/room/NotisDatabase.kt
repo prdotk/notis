@@ -2,12 +2,8 @@ package com.inging.notis.data.room
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.inging.notis.data.room.dao.NotiInfoDao
-import com.inging.notis.data.room.dao.PkgNotiInfoDao
-import com.inging.notis.data.room.dao.SummaryInfoDao
-import com.inging.notis.data.room.entity.NotiInfo
-import com.inging.notis.data.room.entity.PkgNotiInfo
-import com.inging.notis.data.room.entity.SummaryInfo
+import com.inging.notis.data.room.dao.*
+import com.inging.notis.data.room.entity.*
 
 /**
  * Created by annasu on 2021/04/26.
@@ -17,13 +13,17 @@ import com.inging.notis.data.room.entity.SummaryInfo
     entities = [
         NotiInfo::class,
         SummaryInfo::class,
-        PkgNotiInfo::class
+        PkgNotiInfo::class,
+        SearchHistoryInfo::class,
+        PkgInfo::class
     ],
-    version = 1,
+    version = 6,
     exportSchema = false
 )
 abstract class NotisDatabase : RoomDatabase() {
     abstract fun getNotiInfoDao(): NotiInfoDao
     abstract fun getSummaryInfoDao(): SummaryInfoDao
     abstract fun getPkgNotiInfoDao(): PkgNotiInfoDao
+    abstract fun getSearchHistoryDao(): SearchHistoryDao
+    abstract fun getPkgInfoDao(): PkgInfoDao
 }

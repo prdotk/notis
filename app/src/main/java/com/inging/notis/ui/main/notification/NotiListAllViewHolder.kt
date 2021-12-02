@@ -61,25 +61,21 @@ class NotiListAllViewHolder(
                         picture.setImageBitmap(bitmap)
                     }
                 }
-
-                bgImage.visibility = View.GONE
-                if (info.bgImage.isNotEmpty()) {
-                    val bitmap = info.bgImage.loadBitmap(root.context)
-                    if (bitmap != null) {
-                        bgImage.visibility = View.VISIBLE
-                        bgImage.setImageBitmap(bitmap)
-                    }
-                }
             }
 
             // 앱이름
             appName.text = root.context.getAppName(info.pkgName)
 
             // 타이틀
-            title.text = info.title
+            if (info.title.isNotEmpty()) {
+                title.visibility = View.VISIBLE
+                title.text = info.title
+            } else {
+                title.visibility = View.GONE
+            }
 
             // 서머리
-            if (info.title != info.summaryText) {
+            if (info.summaryText != info.title && info.summaryText != info.text) {
                 summary.visibility = View.VISIBLE
                 summary.text = info.summaryText
             } else {
@@ -110,14 +106,18 @@ class NotiListAllViewHolder(
             layout.setOnClickListener {
                 if (isEditMode.get()) {
                     check.performClick()
-                } else {
-                    listener(ClickMode.DEFAULT, info, false)
                 }
+//                else {
+//                    listener(ClickMode.DEFAULT, info, false)
+//                }
             }
 
             layout.setOnLongClickListener {
-                check.performClick()
-                listener(ClickMode.LONG, info, false)
+                if (isEditMode.get()) {
+                    check.performClick()
+                } else {
+                    listener(ClickMode.LONG, info, false)
+                }
                 true
             }
 

@@ -1,29 +1,28 @@
 package com.inging.notis.service
 
-import android.app.Notification
-import android.app.PendingIntent
-import android.app.RemoteInput
+import android.app.*
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Icon
-import android.os.Bundle
-import android.os.Parcelable
-import android.os.ResultReceiver
+import android.os.*
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.core.app.NotificationCompat.*
+import androidx.lifecycle.*
 import com.inging.notis.constant.NotiViewType
 import com.inging.notis.constant.ServiceCommandType
 import com.inging.notis.data.room.entity.NotiInfo
-import com.inging.notis.extension.executeLocalAppPackage
-import com.inging.notis.extension.saveFile
+import com.inging.notis.data.room.entity.PkgInfo
+import com.inging.notis.extension.*
 import com.inging.notis.repository.NotiRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.map
 import java.util.concurrent.Executors
 import javax.inject.Inject
+
 
 /**
  * Created by annasu on 2021/04/23.
@@ -47,10 +46,43 @@ class NotisNotificationListenerService : NotificationListenerService() {
     // key : notiId
     private val contentIntentMap = mutableMapOf<Long, PendingIntent?>()
 
+    // block app list
+    private var pkgInfoList = listOf<PkgInfo>()
+
+    // notification
+    private val notificationBar: NotisNotificationBar by lazy {
+        NotisNotificationBar(this)
+    }
+
+    // firebase analytics
+//    private lateinit var firebaseAnalytics: FirebaseAnalytics
+
+    override fun onCreate() {
+        super.onCreate()
+
+//        firebaseAnalytics = Firebase.analytics
+
+//        firebaseAnalytics.logEvent(NOTI_SERVICE) {
+//            param("flow", "onCreate()")
+//        }
+
+        notificationBar.createNotification()
+
+        notiRepository.getPkgInfoListFlow().map {
+            pkgInfoList = it
+        }//.launchIn(CoroutineScope(Dispatchers.IO))
+    }
+
     // 서비스 커맨드 실행
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.let {
-            when (it.getIntExtra("COMMAND_TYPE", 0)) {
+            val type = it.getIntExtra("COMMAND_TYPE", 0)
+
+//            firebaseAnalytics.logEvent(NOTI_SERVICE) {
+//                param("flow", "onStartCommand:type:$type")
+//            }
+
+            when (type) {
                 ServiceCommandType.SEND_MESSAGE_TYPE -> sendMessage(it)
                 ServiceCommandType.CHECK_REPLY_POSSIBLE -> checkReply(it)
                 ServiceCommandType.RUN_CONTENT_INTENT -> runContentIntent(it)
@@ -60,26 +92,95 @@ class NotisNotificationListenerService : NotificationListenerService() {
         return START_NOT_STICKY
     }
 
+    override fun onListenerConnected() {
+        super.onListenerConnected()
+
+//        firebaseAnalytics.logEvent(NOTI_SERVICE) {
+//            param("flow", "onListenerConnected")
+//        }
+    }
+
+    override fun onListenerDisconnected() {
+        super.onListenerDisconnected()
+
+//        firebaseAnalytics.logEvent(NOTI_SERVICE) {
+//            param("flow", "onListenerDisconnected")
+//        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+//        firebaseAnalytics.logEvent(NOTI_SERVICE) {
+//            param("flow", "onDestroy")
+//        }
+    }
+
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         Log.d("onNotificationRemoved", sbn?.packageName ?: "?????")
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?, rankingMap: RankingMap?) {
-        super.onNotificationPosted(sbn, rankingMap)
+//        super.onNotificationPosted(sbn, rankingMap)
+        sbn?.let { notificationPosted(sbn) }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         Log.d("onNotificationPosted", sbn?.notification.toString())
-        sbn?.notification?.let {
-            // Ongoing 아니면 저장
-            if (!sbn.isOngoing) {
-                saveNoti(sbn.packageName, it, sbn.key, sbn.postTime)
+        sbn?.let { notificationPosted(sbn) }
+    }
+
+    private fun notificationPosted(sbn: StatusBarNotification) {
+        // Ongoing 아니면 저장
+        if (!sbn.isOngoing) {
+            val pkgInfo = pkgInfoList.find { info ->
+                info.pkgName == sbn.packageName
             }
-//            cancelNotification(sbn.key)
+            cancelNoti(sbn, pkgInfo)
+            saveNoti(sbn, pkgInfo)
         }
     }
 
-    private fun saveNoti(pkgName: String, notification: Notification, key: String, postTime: Long) {
+    // 상단바에서 노티 제거
+    private fun cancelNoti(sbn: StatusBarNotification, pkgInfo: PkgInfo?) {
+        sbn.notification?.also { notification ->
+            if (pkgInfo == null) {
+                if (notification.category != CATEGORY_MESSAGE) {
+                    cancelNotification(sbn.key)
+                } else {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        notiRepository.savePkgInfo(
+                            PkgInfo(
+                                sbn.packageName,
+                                isBlock = false,
+                                isSave = true
+                            )
+                        )
+                    }
+                }
+            } else {
+                if (pkgInfo.isBlock) {
+                    cancelNotification(sbn.key)
+                }
+            }
+        }
+    }
+
+    // 세이브 할지 판단
+    private fun saveNoti(sbn: StatusBarNotification, pkgInfo: PkgInfo?) {
+        sbn.notification?.let { notification ->
+            if (pkgInfo != null) {
+                if (pkgInfo.isSave) {
+                    saveNoti(sbn.packageName, notification, sbn.key)
+                }
+            } else {
+                saveNoti(sbn.packageName, notification, sbn.key)
+            }
+        }
+    }
+
+    // 노티 저장
+    private fun saveNoti(pkgName: String, notification: Notification, key: String) {
         Log.d("onNotificationPosted", notification.flags.toString(2))
         CoroutineScope(singleDispatcher).launch {
             val notiInfo = NotiInfo(pkgName = pkgName, senderType = NotiViewType.LEFT)
@@ -88,7 +189,9 @@ class NotisNotificationListenerService : NotificationListenerService() {
             notiInfo.key = key
 
             // 노티 시간
-            notiInfo.timestamp = if (postTime > 0) postTime else System.currentTimeMillis()
+//            notiInfo.timestamp = if (postTime > 0) postTime else System.currentTimeMillis()
+            notiInfo.timestamp =
+                if (notification.`when` > 0) notification.`when` else System.currentTimeMillis()
 
             // 노티 카테고리 저장
             notiInfo.category = notification.category ?: ""
@@ -182,22 +285,22 @@ class NotisNotificationListenerService : NotificationListenerService() {
                 }
 
                 // EXTRA_BACKGROUND_IMAGE_URI
-                val bgImage = bundle.getParcelable<Parcelable>(EXTRA_BACKGROUND_IMAGE_URI)
-                if (bgImage is Bitmap) {
-                    notiInfo.bgImage = bgImage
-                        .saveFile(
-                            this@NotisNotificationListenerService,
-                            "${EXTRA_BACKGROUND_IMAGE_URI}/${notiInfo.pkgName}/${notiInfo.title}"
-                        )
-                } else if (bgImage is Icon) {
-                    notiInfo.bgImage =
-                        (bgImage.loadDrawable(this@NotisNotificationListenerService) as? BitmapDrawable)
-                            ?.saveFile(
-                                this@NotisNotificationListenerService,
-                                "${EXTRA_BACKGROUND_IMAGE_URI}/${notiInfo.pkgName}/${notiInfo.title}"
-                            )
-                            ?: ""
-                }
+//                val bgImage = bundle.getParcelable<Parcelable>(EXTRA_BACKGROUND_IMAGE_URI)
+//                if (bgImage is Bitmap) {
+//                    notiInfo.bgImage = bgImage
+//                        .saveFile(
+//                            this@NotisNotificationListenerService,
+//                            "${EXTRA_BACKGROUND_IMAGE_URI}/${notiInfo.pkgName}/${notiInfo.title}"
+//                        )
+//                } else if (bgImage is Icon) {
+//                    notiInfo.bgImage =
+//                        (bgImage.loadDrawable(this@NotisNotificationListenerService) as? BitmapDrawable)
+//                            ?.saveFile(
+//                                this@NotisNotificationListenerService,
+//                                "${EXTRA_BACKGROUND_IMAGE_URI}/${notiInfo.pkgName}/${notiInfo.title}"
+//                            )
+//                            ?: ""
+//                }
             }
 
             // db 저장
@@ -209,7 +312,6 @@ class NotisNotificationListenerService : NotificationListenerService() {
 
                 // 클릭 액션 저장
                 notification.contentIntent?.let { pendingIntent ->
-
                     // 맵정리, 인텐트가 사라지면 삭제
                     val tempList = contentIntentMap.toList()
                     tempList.forEach {
@@ -217,11 +319,9 @@ class NotisNotificationListenerService : NotificationListenerService() {
                             contentIntentMap.remove(it.first)
                         }
                     }
-
                     // 펜딩 인텐트 맵 저장
                     contentIntentMap[notiId] = pendingIntent
                 }
-
                 // 노티 답장 액션 저장
                 notification.actions?.let { actions ->
                     actions.forEach { action ->
@@ -229,7 +329,6 @@ class NotisNotificationListenerService : NotificationListenerService() {
                         action?.remoteInputs?.let { remoteInputs ->
                             remoteInputs.forEach { remoteInput ->
                                 if (notiInfo.summaryText.isNotEmpty()) {
-
                                     // 맵정리, 인텐트가 사라지면 삭제
                                     val tempList = actionIntentMap.toList()
                                     tempList.forEach {
@@ -238,7 +337,6 @@ class NotisNotificationListenerService : NotificationListenerService() {
                                             resultKeyMap.remove(it.first)
                                         }
                                     }
-
                                     // 맵 저장
                                     actionIntentMap["${notiInfo.pkgName}_${notiInfo.summaryText}"] =
                                         action.actionIntent
@@ -249,6 +347,8 @@ class NotisNotificationListenerService : NotificationListenerService() {
                         }
                     }
                 }
+                // 노티 바 업데이트
+                notificationBar.updateNotification(notiInfo)
             }
         }
     }
@@ -329,5 +429,9 @@ class NotisNotificationListenerService : NotificationListenerService() {
                 putBoolean("CHECK", check)
             })
         }
+    }
+
+    companion object {
+        const val NOTI_SERVICE = "noti_service"
     }
 }

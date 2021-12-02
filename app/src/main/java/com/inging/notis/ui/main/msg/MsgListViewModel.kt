@@ -9,10 +9,11 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.inging.notis.data.model.SimpleSummaryData
-import com.inging.notis.data.room.entity.NotiInfo
 import com.inging.notis.repository.NotiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -29,15 +30,16 @@ class MsgListViewModel @Inject constructor(
     ) {
         repository.getSummaryListByCategory(CATEGORY_MESSAGE)
     }.flow
-        .cachedIn(viewModelScope)
 //        .map {
 //            it.insertHeaderItem(
 //                TerminalSeparatorType.FULLY_COMPLETE,
 //                SummaryInfo(0, NotiInfo(notiId = -1, senderType = NotiViewType.HEADER))
 //            )
 //        }
+        .cachedIn(viewModelScope)
 
-    val deleteList = ObservableArrayList<SimpleSummaryData>()
+    val selectedList = ObservableArrayList<SimpleSummaryData>()
+    var deleteList = emptyList<SimpleSummaryData>()
 
 //    fun selectTotalNoti() {
 //        viewModelScope.launch(Dispatchers.IO) {
@@ -48,17 +50,13 @@ class MsgListViewModel @Inject constructor(
 //        }
 //    }
 
-    fun clearDeleteList() {
-        deleteList.clear()
-    }
+//    suspend fun realDelete(info: NotiInfo) {
+//        repository.deleteSummaryAndNoti(info.pkgName, info.summaryText)
+//    }
 
-    suspend fun delete(info: NotiInfo) {
-        repository.deleteSummaryAndNoti(info.pkgName, info.summaryText)
-    }
-
-    suspend fun delete() {
-        withContext(Dispatchers.IO) {
-            deleteList.forEach { data ->
+    fun delete(list: List<SimpleSummaryData>) {
+        CoroutineScope(Dispatchers.IO).launch {
+            list.forEach { data ->
                 repository.deleteSummaryAndNoti(data.pkgName, data.summaryText)
             }
         }
@@ -73,6 +71,22 @@ class MsgListViewModel @Inject constructor(
     suspend fun readAll() {
         withContext(Dispatchers.IO) {
             repository.readAllMsg()
+        }
+    }
+
+    suspend fun undoDelete() {
+        withContext(Dispatchers.IO) {
+            deleteList.forEach { data ->
+                repository.updateSummaryDeleted(data.pkgName, data.summaryText, true)
+            }
+        }
+    }
+
+    suspend fun undoRestore() {
+        withContext(Dispatchers.IO) {
+            deleteList.forEach { data ->
+                repository.updateSummaryDeleted(data.pkgName, data.summaryText, false)
+            }
         }
     }
 }

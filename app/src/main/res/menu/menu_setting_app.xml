@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/system_apps"
+        android:title="@string/setting_menu_show_system_apps" />
+
+    <item
+        android:id="@+id/all_on"
+        android:title="@string/setting_menu_all_on" />
+
+    <item
+        android:id="@+id/all_off"
+        android:title="@string/setting_menu_all_off" />
+</menu>
